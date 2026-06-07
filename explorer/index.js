@@ -6,12 +6,16 @@ app.use(cors());
 app.use(express.static('public'));
 const RPC_URL = process.env.RPC_URL || 'http://shivraiuser:honpassword123@127.0.0.1:18555';
 async function rpc(method, params = []) {
-    const res = await axios.post(RPC_URL, {jsonrpc: '1.0', id: 'explorer', method, params});
+    const res = await axios.post(RPC_URL, {jsonrpc: '1.0', id: 'explorer', method, params}, {timeout: 5000});
     return res.data.result;
 }
 app.get('/api/info', async (req, res) => {
-    try { const info = await rpc('getblockchaininfo'); res.json(info); }
-    catch(e) { res.status(500).json({ error: e.message }); }
+    try {
+        const info = await rpc('getblockchaininfo');
+        res.json({...info, online: true});
+    } catch(e) {
+        res.json({blocks: '—', chain: 'regtest', difficulty: 0, online: false, error: 'Node offline'});
+    }
 });
 app.get('/api/latest', async (req, res) => {
     try {
@@ -24,6 +28,6 @@ app.get('/api/latest', async (req, res) => {
             hash = block.previousblockhash;
         }
         res.json(blocks);
-    } catch(e) { res.status(500).json({ error: e.message }); }
+    } catch(e) { res.json([]); }
 });
 app.listen(3000, () => console.log('SHIVRAI HON Explorer running on port 3000'));
