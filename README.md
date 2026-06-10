@@ -26,5 +26,3 @@ An independent decentralized cryptocurrency — SHIVRAI HON (HON).
 Distributed under the MIT software license.
 
 ---
-
-*Jai Bhavani! Jai Shivaji!* 🚩
