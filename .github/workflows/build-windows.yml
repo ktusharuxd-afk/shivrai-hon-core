@@ -8,24 +8,36 @@ jobs:
     runs-on: windows-latest
     steps:
     - uses: actions/checkout@v4
-    - name: Setup vcpkg
-      run: |
-        git clone https://github.com/microsoft/vcpkg.git C:\vcpkg
-        C:\vcpkg\bootstrap-vcpkg.bat
-        C:\vcpkg\vcpkg.exe integrate install
-    - name: Install deps
-      run: |
-        C:\vcpkg\vcpkg.exe install boost:x64-windows libevent:x64-windows openssl:x64-windows sqlite3:x64-windows zeromq:x64-windows
+
+    - name: Setup MSYS2
+      uses: msys2/setup-msys2@v2
+      with:
+        msystem: MINGW64
+        update: true
+        install: >-
+          mingw-w64-x86_64-gcc
+          mingw-w64-x86_64-cmake
+          mingw-w64-x86_64-boost
+          mingw-w64-x86_64-libevent
+          mingw-w64-x86_64-openssl
+          mingw-w64-x86_64-sqlite3
+          mingw-w64-x86_64-zeromq
+          make
+
     - name: Configure
+      shell: msys2 {0}
       run: |
-        cmake -B build -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-windows -DENABLE_IPC=OFF -DBUILD_TESTS=OFF -DCMAKE_BUILD_TYPE=Release
+        cmake -B build -DENABLE_IPC=OFF -DBUILD_TESTS=OFF -DCMAKE_BUILD_TYPE=Release
+
     - name: Build
+      shell: msys2 {0}
       run: |
-        cmake --build build --config Release -j2 --target bitcoind bitcoin-cli
+        cmake --build build -j2 --target bitcoind bitcoin-cli
+
     - name: Upload
       uses: actions/upload-artifact@v4
       with:
         name: shivrai-hon-windows
         path: |
-          build/bin/Release/bitcoind.exe
-          build/bin/Release/bitcoin-cli.exe
+          build/bin/bitcoind.exe
+          build/bin/bitcoin-cli.exe

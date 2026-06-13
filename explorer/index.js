@@ -30,4 +30,20 @@ app.get('/api/latest', async (req, res) => {
         res.json(blocks);
     } catch(e) { res.json([]); }
 });
+
+app.use(express.json());
+app.post('/api/rpc', async (req, res) => {
+    try {
+        const {method, params, rpcUrl, rpcUser, rpcPass} = req.body;
+        const url = rpcUrl || 'http://127.0.0.1:8332';
+        const auth = Buffer.from((rpcUser||'shivraiuser')+':'+(rpcPass||'honpassword123')).toString('base64');
+        const result = await axios.post(url, {jsonrpc:'1.0',id:'miner',method,params}, {
+            headers:{Authorization:'Basic '+auth},
+            timeout:30000
+        });
+        res.json({result: result.data.result, error: null});
+    } catch(e) {
+        res.json({result: null, error: e.message});
+    }
+});
 app.listen(3000, () => console.log('SHIVRAI HON Explorer running on port 3000'));

@@ -1,113 +1,289 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
+<meta charset="UTF-8">Run a node. Mine HON. Be part of Decentralized Finance. The future of Bharat crypto starts here.
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>SHIVRAI HON Explorer</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="icon" href="https://ktusharuxd-afk.github.io/shivrai-hon-website/honfevicon.svg" type="image/svg+xml">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Inter',sans-serif;background:#0f0600;color:#c4843a}
-.hero{background:linear-gradient(180deg,rgba(255,153,0,0.12) 0%,transparent 100%);padding:2rem;text-align:center;border-bottom:1px solid rgba(255,153,0,0.2)}
-.logo{display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:6px}
-.logo-icon{width:42px;height:42px;background:#FF9900;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px}
-.logo-text{font-size:24px;font-weight:600;color:#FF9900}
-.tagline{font-size:12px;color:#8a5a20;letter-spacing:2px;text-transform:uppercase}
-.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:rgba(255,153,0,0.08);border-bottom:1px solid rgba(255,153,0,0.12)}
-.stat{padding:1.25rem;text-align:center;background:#0f0600}
-.stat-label{font-size:11px;color:#6a4020;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px}
-.stat-value{font-size:22px;font-weight:500;color:#FF9900}
-.stat-sub{font-size:11px;color:#4a2a08;margin-top:3px}
-.section{padding:1.5rem;max-width:900px;margin:0 auto}
-.section-title{font-size:12px;font-weight:500;color:#8a5a20;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:1rem;display:flex;align-items:center;gap:8px}
-.section-title::after{content:'';flex:1;height:1px;background:rgba(255,153,0,0.12)}
-.search-bar{display:flex;gap:8px;margin-bottom:1.5rem}
-.search-input{flex:1;background:rgba(255,153,0,0.04);border:0.5px solid rgba(255,153,0,0.2);border-radius:8px;padding:10px 14px;color:#c4843a;font-size:13px;outline:none;font-family:'Inter',sans-serif}
-.search-input::placeholder{color:#3a1a04}
-.search-btn{background:rgba(255,153,0,0.12);border:0.5px solid rgba(255,153,0,0.3);border-radius:8px;padding:10px 20px;color:#FF9900;font-size:13px;cursor:pointer}
-.block-card{background:rgba(255,153,0,0.04);border:0.5px solid rgba(255,153,0,0.12);border-radius:8px;padding:1rem;margin-bottom:8px;display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center}
-.block-card:hover{border-color:rgba(255,153,0,0.35);background:rgba(255,153,0,0.07)}
-.block-num{background:rgba(255,153,0,0.12);border:0.5px solid rgba(255,153,0,0.25);border-radius:6px;padding:6px 10px;font-size:13px;font-weight:500;color:#FF9900;white-space:nowrap}
-.block-hash{font-family:monospace;font-size:11px;color:#5a3a10;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.block-info{display:flex;gap:8px;margin-top:4px;flex-wrap:wrap}
-.badge{font-size:10px;color:#7a5020;background:rgba(255,153,0,0.07);padding:2px 7px;border-radius:4px}
-.reward{font-size:13px;font-weight:500;color:#FF9900;white-space:nowrap}
-.block-time{font-size:11px;color:#4a2a08;text-align:right;margin-top:2px}
-.live-dot{width:6px;height:6px;background:#4ade80;border-radius:50%;display:inline-block;margin-right:6px;animation:blink 2s infinite}
-@keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}
-.net-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.net-item{background:rgba(255,153,0,0.03);border:0.5px solid rgba(255,153,0,0.1);border-radius:6px;padding:10px 14px;display:flex;justify-content:space-between}
-.net-label{font-size:12px;color:#5a3a10}
-.net-value{font-size:12px;font-weight:500;color:#c4843a}
-.error{color:#e24b4a;font-size:12px;padding:1rem;text-align:center}
-.loading{color:#5a3a10;font-size:12px;padding:2rem;text-align:center}
+:root{--gold:#FFB300;--gold2:#FFCC00;--dark:#090909;--dark2:#0f0f0f}
+html{scroll-behavior:smooth}
+body{font-family:'Poppins',sans-serif;background:var(--dark);color:#fff;overflow-x:hidden}
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-track{background:#111}
+::-webkit-scrollbar-thumb{background:#FFB300;border-radius:5px}
+#bg-canvas{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none;opacity:0.5}
+
+/* NAV */
+header{position:fixed;width:100%;top:0;z-index:1000;background:rgba(9,9,9,0.85);backdrop-filter:blur(20px);border-bottom:1px solid rgba(255,179,0,0.1)}
+.nav{display:flex;justify-content:space-between;align-items:center;padding:14px 5%;max-width:1400px;margin:auto}
+.logo-area{display:flex;align-items:center;gap:12px;text-decoration:none}
+.logo-area img{width:160px;height:55px;object-fit:contain}
+.nav-links{display:flex;align-items:center;gap:5px}
+.nav-links a{text-decoration:none;color:#bbb;padding:7px 14px;border-radius:8px;font-size:0.85em;font-weight:500;transition:all 0.3s}
+.nav-links a:hover{color:var(--gold);background:rgba(255,179,0,0.08)}
+.nav-cta{background:linear-gradient(135deg,#FFB300,#FF8C00)!important;color:#000!important;border-radius:50px!important;font-weight:600!important}
+.nav-cta:hover{box-shadow:0 0 20px rgba(255,179,0,0.4)!important;transform:translateY(-1px)}
+.hamburger{display:none;flex-direction:column;gap:5px;cursor:pointer;padding:8px}
+.hamburger span{display:block;width:24px;height:2px;background:var(--gold);border-radius:2px}
+.mobile-menu{display:none;position:fixed;top:62px;left:0;width:100%;background:rgba(9,9,9,0.98);backdrop-filter:blur(20px);z-index:999;padding:20px 5%;border-bottom:1px solid rgba(255,179,0,0.15)}
+.mobile-menu.open{display:block}
+.mobile-menu a{display:block;color:#bbb;text-decoration:none;padding:12px 0;border-bottom:1px solid rgba(255,255,255,0.05);font-size:0.95em;font-weight:500}
+.mobile-menu a:hover{color:var(--gold)}
+
+/* HERO */
+.hero{position:relative;z-index:1;padding:100px 5% 50px;background:radial-gradient(ellipse at top right,rgba(255,179,0,0.1) 0%,transparent 50%),linear-gradient(to bottom,#0b0b0b,#110900);text-align:center}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(255,179,0,0.1);border:1px solid rgba(255,179,0,0.25);color:var(--gold);padding:7px 18px;border-radius:50px;font-size:0.8em;font-weight:500;margin-bottom:20px}
+.hero h1{font-size:clamp(2em,5vw,3.5em);font-weight:800;margin-bottom:12px}
+.hero h1 .gold{background:linear-gradient(135deg,#FFB300,#FF6600);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero p{color:#777;font-size:0.95em;margin-bottom:30px}
+.live-dot{display:inline-flex;align-items:center;gap:6px;background:rgba(74,222,128,0.1);border:1px solid rgba(74,222,128,0.3);color:#4ade80;padding:6px 14px;border-radius:50px;font-size:0.78em;font-weight:500}
+.live-dot span{width:7px;height:7px;background:#4ade80;border-radius:50%;animation:live-pulse 1.5s infinite}
+@keyframes live-pulse{0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(74,222,128,0.4)}50%{opacity:0.7;box-shadow:0 0 0 6px rgba(74,222,128,0)}}
+
+/* STATS CARDS */
+.stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:15px;max-width:1000px;margin:40px auto;position:relative;z-index:1;padding:0 5%}
+.stat-card{background:linear-gradient(135deg,#131313,#0d0d0d);border:1px solid rgba(255,179,0,0.12);border-radius:20px;padding:25px 20px;text-align:center;transition:all 0.3s;position:relative;overflow:hidden}
+.stat-card::before{content:'';position:absolute;top:0;left:-100%;width:100%;height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent);transition:left 0.5s}
+.stat-card:hover::before{left:100%}
+.stat-card:hover{border-color:rgba(255,179,0,0.35);transform:translateY(-5px);box-shadow:0 15px 40px rgba(255,179,0,0.08)}
+.stat-icon{font-size:1.6em;margin-bottom:10px}
+.stat-val{font-size:1.7em;font-weight:700;color:var(--gold2);line-height:1}
+.stat-lbl{font-size:0.72em;color:#666;text-transform:uppercase;letter-spacing:0.5px;margin-top:6px}
+
+/* MAIN CONTENT */
+.content{max-width:1100px;margin:0 auto;padding:20px 5% 80px;position:relative;z-index:1}
+.section-hd{display:flex;align-items:center;gap:12px;margin-bottom:20px}
+.section-hd h2{font-size:1.1em;font-weight:600;color:#fff}
+.section-hd .dot{width:8px;height:8px;background:var(--gold);border-radius:50%;animation:live-pulse 1.5s infinite}
+
+/* BLOCKS */
+.blocks-wrap{display:flex;flex-direction:column;gap:10px}
+.block-card{background:linear-gradient(135deg,#111,#0d0d0d);border:1px solid rgba(255,179,0,0.1);border-radius:16px;padding:18px 22px;display:grid;grid-template-columns:auto 1fr auto;gap:16px;align-items:center;transition:all 0.3s;cursor:pointer}
+.block-card:hover{border-color:rgba(255,179,0,0.35);background:linear-gradient(135deg,#141200,#0f0d00);transform:translateX(4px);box-shadow:0 8px 30px rgba(255,179,0,0.07)}
+.block-num{background:rgba(255,179,0,0.1);border:1px solid rgba(255,179,0,0.2);border-radius:10px;padding:8px 14px;font-size:0.88em;font-weight:600;color:var(--gold);white-space:nowrap;min-width:80px;text-align:center}
+.block-info{min-width:0}
+.block-hash{font-family:'Courier New',monospace;font-size:0.78em;color:#555;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-bottom:6px}
+.block-meta{display:flex;gap:10px;flex-wrap:wrap}
+.meta-tag{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.06);border-radius:6px;padding:3px 9px;font-size:0.72em;color:#666}
+.block-reward{text-align:right}
+.reward-val{font-size:1em;font-weight:600;color:var(--gold2)}
+.reward-lbl{font-size:0.7em;color:#555;margin-top:2px}
+.block-time{font-size:0.72em;color:#444;margin-top:3px;white-space:nowrap}
+
+/* EMPTY / ERROR */
+.empty-state{text-align:center;padding:60px 20px;color:#444}
+.empty-state .empty-icon{font-size:3em;margin-bottom:15px;opacity:0.5}
+.empty-state p{font-size:0.9em}
+
+/* NETWORK INFO */
+.net-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-top:15px}
+.net-item{background:linear-gradient(135deg,#111,#0d0d0d);border:1px solid rgba(255,179,0,0.08);border-radius:12px;padding:14px 18px;display:flex;justify-content:space-between;align-items:center;transition:all 0.3s}
+.net-item:hover{border-color:rgba(255,179,0,0.25);background:rgba(255,179,0,0.03)}
+.net-k{font-size:0.8em;color:#555}
+.net-v{font-size:0.85em;font-weight:600;color:var(--gold2)}
+
+/* STATUS BAR */
+.status-bar{display:flex;align-items:center;justify-content:space-between;background:rgba(255,179,0,0.04);border:1px solid rgba(255,179,0,0.1);border-radius:12px;padding:12px 18px;margin-bottom:25px;flex-wrap:wrap;gap:10px}
+.status-online{display:flex;align-items:center;gap:8px;color:#4ade80;font-size:0.82em;font-weight:500}
+.status-offline{display:flex;align-items:center;gap:8px;color:#f87171;font-size:0.82em;font-weight:500}
+.status-dot-g{width:7px;height:7px;background:#4ade80;border-radius:50%;animation:live-pulse 1.5s infinite}
+.status-dot-r{width:7px;height:7px;background:#f87171;border-radius:50%}
+.status-time{font-size:0.75em;color:#444}
+
+/* FOOTER */
+footer{position:relative;z-index:1;text-align:center;padding:35px 20px;border-top:1px solid rgba(255,179,0,0.08);background:#070707}
+footer img{height:40px;margin-bottom:10px;opacity:0.7}
+footer p{color:#444;font-size:0.78em;margin:3px 0}
+footer .gold{color:var(--gold);font-weight:500}
+
+/* RESPONSIVE */
+@media(max-width:768px){
+.nav-links{display:none}
+.hamburger{display:flex}
+.block-card{grid-template-columns:auto 1fr;gap:10px}
+.block-reward{display:none}
+.stats-row{grid-template-columns:repeat(2,1fr)}
+}
+@media(max-width:480px){
+.stats-row{grid-template-columns:1fr 1fr}
+.block-hash{font-size:0.7em}
+}
 </style>
 </head>
 <body>
-<div class="hero">
-  <div class="logo">
-    <div class="logo-icon">&#x1F6E1;</div>
-    <span class="logo-text">SHIVRAI HON Explorer</span>
+
+<canvas id="bg-canvas"></canvas>
+
+<header>
+  <div class="nav">
+    <a href="/" class="logo-area">
+      <img src="/honcoinlogo.svg" alt="SHIVRAI HON">
+    </a>
+    <div class="nav-links">
+      <a href="https://ktusharuxd-afk.github.io/shivrai-hon-website" target="_blank">Website</a>
+      <a href="https://github.com/ktusharuxd-afk/shivrai-hon-core" target="_blank">GitHub</a>
+      <a href="https://github.com/ktusharuxd-afk/shivrai-hon-core/blob/master/SHIVRAI_HON_Whitepaper.pdf" target="_blank">Whitepaper</a>
+      <a href="https://github.com/ktusharuxd-afk/shivrai-hon-core" target="_blank" class="nav-cta">Run Node ↗</a>
+    </div>
+    <div class="hamburger" onclick="toggleMenu()">
+      <span></span><span></span><span></span>
+    </div>
   </div>
-  <div class="tagline">Decentralized Digital Currency of Bharat</div>
+</header>
+
+<div class="mobile-menu" id="mobileMenu">
+  <a href="https://ktusharuxd-afk.github.io/shivrai-hon-website" target="_blank">Website</a>
+  <a href="https://github.com/ktusharuxd-afk/shivrai-hon-core" target="_blank">GitHub ↗</a>
+  <a href="https://github.com/ktusharuxd-afk/shivrai-hon-core/blob/master/SHIVRAI_HON_Whitepaper.pdf" target="_blank">Whitepaper ↗</a>
+  <a href="https://github.com/ktusharuxd-afk/shivrai-hon-core" target="_blank">Run Node ↗</a>
 </div>
-<div class="stats">
-  <div class="stat"><div class="stat-label">Total Blocks</div><div class="stat-value" id="s-blocks">—</div><div class="stat-sub">mined</div></div>
-  <div class="stat"><div class="stat-label">Block Reward</div><div class="stat-value">200</div><div class="stat-sub">HON per block</div></div>
-  <div class="stat"><div class="stat-label">Halving</div><div class="stat-value">2 yr</div><div class="stat-sub">210,240 blocks</div></div>
-  <div class="stat"><div class="stat-label">Network</div><div class="stat-value" id="s-chain">—</div><div class="stat-sub">chain</div></div>
-</div>
-<div class="section">
-  <div class="search-bar">
-    <input class="search-input" id="search-inp" placeholder="Search block height or hash..." />
-    <button class="search-btn" onclick="doSearch()">Search</button>
+
+<section class="hero">
+  <div class="hero-badge">🔍 Live Blockchain Explorer</div>
+  <h1>SHIVRAI HON <span class="gold">Explorer</span></h1>
+  <p>Decentralized Digital Currency</p>
+  <div class="live-dot" id="live-status"><span></span> Connecting...</div>
+</section>
+
+<div class="stats-row">
+  <div class="stat-card">
+    <div class="stat-icon">🧱</div>
+    <div class="stat-val" id="s-blocks">—</div>
+    <div class="stat-lbl">Total Blocks</div>
   </div>
-  <div class="section-title"><span class="live-dot"></span>Latest Blocks</div>
-  <div id="block-list"><div class="loading">Loading blocks...</div></div>
-  <div class="section-title" style="margin-top:1.5rem">Network Info</div>
+  <div class="stat-card">
+    <div class="stat-icon">⛏️</div>
+    <div class="stat-val">200</div>
+    <div class="stat-lbl">Block Reward HON</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon">🔗</div>
+    <div class="stat-val" id="s-chain">—</div>
+    <div class="stat-lbl">Network</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon">🪙</div>
+    <div class="stat-val">84M</div>
+    <div class="stat-lbl">Max Supply HON</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon">⏱️</div>
+    <div class="stat-val">5 Min</div>
+    <div class="stat-lbl">Block Time</div>
+  </div>
+</div>
+
+<div class="content">
+
+  <div class="status-bar">
+    <div id="node-status" class="status-offline"><span class="status-dot-r"></span>Connecting to node...</div>
+    <span class="status-time" id="last-update">—</span>
+  </div>
+
+  <div class="section-hd">
+    <span class="dot"></span>
+    <h2>Latest Blocks</h2>
+  </div>
+
+  <div class="blocks-wrap" id="block-list">
+    <div class="empty-state">
+      <div class="empty-icon">⛓️</div>
+      <p>Loading blocks...</p>
+    </div>
+  </div>
+
+  <div class="section-hd" style="margin-top:50px">
+    <span class="dot"></span>
+    <h2>Network Info</h2>
+  </div>
+
   <div class="net-grid">
-    <div class="net-item"><span class="net-label">Block Time</span><span class="net-value">5 minutes</span></div>
-    <div class="net-item"><span class="net-label">P2P Port</span><span class="net-value">8444</span></div>
-    <div class="net-item"><span class="net-label">Max Supply</span><span class="net-value">40,000,000 HON</span></div>
-    <div class="net-item"><span class="net-label">Algorithm</span><span class="net-value">SHA-256</span></div>
+    <div class="net-item"><span class="net-k">Block Time</span><span class="net-v">5 Minutes</span></div>
+    <div class="net-item"><span class="net-k">Algorithm</span><span class="net-v">SHA-256 PoW</span></div>
+    <div class="net-item"><span class="net-k">P2P Port</span><span class="net-v">8444</span></div>
+    <div class="net-item"><span class="net-k">Max Supply</span><span class="net-v">84,000,000 HON</span></div>
+    <div class="net-item"><span class="net-k">Consensus</span><span class="net-v">Proof of Work</span></div>
+    <div class="net-item"><span class="net-k">Halving</span><span class="net-v">Every 2 Years</span></div>
   </div>
+
 </div>
+
+<footer>
+  <img src="/honcoinlogo.svg" alt="SHIVRAI HON">
+  <p class="gold">SHIVRAI HON Explorer</p>
+  <p>Decentralized Digital Currency</p>
+  <p style="margin-top:8px">© 2025 SHIVRAI HON | Open Source — MIT License</p>
+</footer>
+
 <script>
+// PARTICLES
+const c=document.getElementById('bg-canvas');
+const cx=c.getContext('2d');
+function rs(){c.width=window.innerWidth;c.height=window.innerHeight}
+rs();window.addEventListener('resize',rs);
+const pts=[];
+for(let i=0;i<50;i++)pts.push({x:Math.random()*c.width,y:Math.random()*c.height,vx:(Math.random()-.5)*.3,vy:(Math.random()-.5)*.3,s:Math.random()*1.5+.5,a:Math.random()*.25+.05});
+function draw(){
+cx.clearRect(0,0,c.width,c.height);
+pts.forEach(p=>{p.x+=p.vx;p.y+=p.vy;
+if(p.x<0||p.x>c.width)p.vx*=-1;
+if(p.y<0||p.y>c.height)p.vy*=-1;
+cx.beginPath();cx.arc(p.x,p.y,p.s,0,Math.PI*2);
+cx.fillStyle=`rgba(255,179,0,${p.a})`;cx.fill()});
+pts.forEach((p,i)=>pts.slice(i+1).forEach(q=>{
+const d=Math.hypot(p.x-q.x,p.y-q.y);
+if(d<110){cx.beginPath();cx.moveTo(p.x,p.y);cx.lineTo(q.x,q.y);cx.strokeStyle=`rgba(255,179,0,${.07*(1-d/110)})`;cx.lineWidth=.5;cx.stroke()}}));
+requestAnimationFrame(draw)}
+draw();
+
+// MOBILE MENU
+function toggleMenu(){document.getElementById('mobileMenu').classList.toggle('open')}
+
+// LOAD DATA
 async function load(){
   try{
     const info=await fetch('/api/info').then(r=>r.json());
     document.getElementById('s-blocks').textContent=info.blocks??'—';
     document.getElementById('s-chain').textContent=(info.chain||'—').toUpperCase();
-  }catch(e){}
+    document.getElementById('node-status').innerHTML='<span class="status-dot-g" style="width:7px;height:7px;background:#4ade80;border-radius:50%;animation:live-pulse 1.5s infinite;display:inline-block"></span> Node Online';
+    document.getElementById('node-status').className='status-online';
+    document.getElementById('live-status').innerHTML='<span style="width:7px;height:7px;background:#4ade80;border-radius:50%;animation:live-pulse 1.5s infinite;display:inline-block"></span> Live';
+    document.getElementById('last-update').textContent='Updated: '+new Date().toLocaleTimeString();
+  }catch(e){
+    document.getElementById('node-status').innerHTML='<span style="width:7px;height:7px;background:#f87171;border-radius:50%;display:inline-block"></span> Node Offline';
+    document.getElementById('node-status').className='status-offline';
+    document.getElementById('live-status').innerHTML='<span style="width:7px;height:7px;background:#f87171;border-radius:50%;display:inline-block"></span> Offline';
+  }
   try{
     const blocks=await fetch('/api/latest').then(r=>r.json());
+    const list=document.getElementById('block-list');
     if(!Array.isArray(blocks)||blocks.length===0){
-      document.getElementById('block-list').innerHTML='<div class="loading">No blocks yet</div>';
+      list.innerHTML='<div class="empty-state"><div class="empty-icon">⛓️</div><p>No blocks yet. Start mining to see blocks here.</p></div>';
       return;
     }
-    document.getElementById('block-list').innerHTML=blocks.map(b=>`
+    list.innerHTML=blocks.map(b=>`
     <div class="block-card">
-      <div class="block-num">#${b.height}</div>
-      <div>
+      <div class="block-num"># ${b.height}</div>
+      <div class="block-info">
         <div class="block-hash">${b.hash}</div>
-        <div class="block-info">
-          <span class="badge">${b.nTx} txn</span>
-          <span class="badge">${b.size} bytes</span>
-          <span class="badge">${new Date(b.time*1000).toLocaleTimeString()}</span>
+        <div class="block-meta">
+          <span class="meta-tag">${b.nTx} txn</span>
+          <span class="meta-tag">${b.size} bytes</span>
+          <span class="meta-tag">nonce: ${b.nonce}</span>
         </div>
       </div>
-      <div>
-        <div class="reward">200 HON</div>
-        <div class="block-time">${new Date(b.time*1000).toLocaleDateString()}</div>
+      <div class="block-reward">
+        <div class="reward-val">200 HON</div>
+        <div class="reward-lbl">Reward</div>
+        <div class="block-time">${new Date(b.time*1000).toLocaleString()}</div>
       </div>
     </div>`).join('');
   }catch(e){
-    document.getElementById('block-list').innerHTML='<div class="error">Node connecting...</div>';
+    document.getElementById('block-list').innerHTML='<div class="empty-state"><div class="empty-icon">⛓️</div><p>Node offline — blocks will appear when node is running.</p></div>';
   }
-}
-function doSearch(){
-  const v=document.getElementById('search-inp').value.trim();
-  if(v) alert('Search: '+v);
 }
 load();
 setInterval(load,30000);

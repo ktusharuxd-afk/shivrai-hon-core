@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SHIVRAI HON Miner</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--gold:#FFB300;--gold2:#FFCC00;--dark:#090909;--dark2:#0f0f0f;--green:#4ade80;--red:#f87171}
+body{font-family:'Poppins',sans-serif;background:var(--dark);color:#fff;min-height:100vh;overflow-x:hidden}
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-thumb{background:#FFB300;border-radius:4px}
+#bg{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none;opacity:0.4}
+.wrap{max-width:1100px;margin:0 auto;padding:30px 20px;position:relative;z-index:1}
+
+/* HEADER */
+.hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:30px;flex-wrap:wrap;gap:15px}
+.hdr-left{display:flex;align-items:center;gap:15px}
+.hdr-left img{height:50px;object-fit:contain}
+.hdr-title h1{font-size:1.4em;font-weight:700;background:linear-gradient(135deg,#FFB300,#FF6600);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hdr-title p{color:#555;font-size:0.78em}
+.hdr-right{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.live-badge{display:flex;align-items:center;gap:6px;background:rgba(74,222,128,0.1);border:1px solid rgba(74,222,128,0.25);color:#4ade80;padding:7px 14px;border-radius:50px;font-size:0.78em;font-weight:500}
+.live-dot{width:7px;height:7px;background:#4ade80;border-radius:50%;animation:live 1.5s infinite}
+@keyframes live{0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(74,222,128,0.4)}50%{box-shadow:0 0 0 6px rgba(74,222,128,0)}}
+.offline-badge{display:flex;align-items:center;gap:6px;background:rgba(248,113,113,0.1);border:1px solid rgba(248,113,113,0.25);color:#f87171;padding:7px 14px;border-radius:50px;font-size:0.78em;font-weight:500}
+
+/* STATS ROW */
+.stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:20px}
+.scard{background:linear-gradient(135deg,#111,#0d0d0d);border:1px solid rgba(255,179,0,0.1);border-radius:16px;padding:20px 15px;text-align:center;transition:all 0.3s;position:relative;overflow:hidden}
+.scard::after{content:'';position:absolute;top:0;left:-100%;width:100%;height:2px;background:linear-gradient(90deg,transparent,#FFB300,transparent);transition:left 0.5s}
+.scard:hover::after{left:100%}
+.scard:hover{border-color:rgba(255,179,0,0.3);transform:translateY(-3px);box-shadow:0 10px 30px rgba(255,179,0,0.08)}
+.scard-icon{font-size:1.5em;margin-bottom:8px}
+.scard-val{font-size:1.6em;font-weight:700;color:#FFB300;line-height:1}
+.scard-lbl{font-size:0.68em;color:#555;text-transform:uppercase;letter-spacing:0.5px;margin-top:5px}
+
+/* MAIN GRID */
+.main-grid{display:grid;grid-template-columns:1fr 1fr;gap:15px;margin-bottom:15px}
+.box{background:linear-gradient(135deg,#111,#0d0d0d);border:1px solid rgba(255,179,0,0.1);border-radius:18px;padding:22px}
+.box-full{grid-column:1/-1}
+.box h2{font-size:0.92em;font-weight:600;color:#fff;margin-bottom:15px;display:flex;align-items:center;gap:8px}
+.box h2 .dot{width:7px;height:7px;background:#FFB300;border-radius:50%}
+
+/* GRAPH */
+.graph-wrap{position:relative;height:160px;margin-bottom:5px}
+canvas.graph{width:100%;height:100%;border-radius:8px}
+.graph-label{display:flex;justify-content:space-between;font-size:0.7em;color:#333;margin-top:5px}
+
+/* MINING CONTROL */
+.cfg-row{display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap}
+.cfg-item{flex:1;min-width:110px}
+.lbl{font-size:0.72em;color:#555;margin-bottom:4px}
+.inp{width:100%;background:#0a0a0a;border:1px solid rgba(255,179,0,0.15);border-radius:8px;padding:9px 12px;color:#fff;font-family:'Poppins',sans-serif;font-size:0.8em;outline:none;transition:border 0.3s}
+.inp:focus{border-color:rgba(255,179,0,0.4)}
+.btn-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.btn{padding:11px 20px;border-radius:50px;font-weight:600;font-size:0.82em;cursor:pointer;border:none;font-family:'Poppins',sans-serif;transition:all 0.3s;display:inline-flex;align-items:center;gap:6px}
+.btn-gold{background:linear-gradient(135deg,#FFB300,#FF8C00);color:#000}
+.btn-gold:hover{box-shadow:0 0 20px rgba(255,179,0,0.5);transform:translateY(-2px)}
+.btn-gold:disabled{background:#222;color:#555;cursor:not-allowed;box-shadow:none;transform:none}
+.btn-red{background:transparent;border:1.5px solid #f87171;color:#f87171;transition:all 0.3s}
+.btn-red:disabled{opacity:0.3;cursor:not-allowed}
+.btn-sm{background:transparent;border:1.5px solid rgba(255,179,0,0.3);color:#FFB300;padding:8px 14px;font-size:0.75em}
+.btn-sm:hover{background:rgba(255,179,0,0.08)}
+
+/* MINING ANIMATION */
+.mine-anim{text-align:center;padding:12px;display:none}
+.mine-ring{width:50px;height:50px;border:3px solid rgba(255,179,0,0.1);border-top:3px solid #FFB300;border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 8px}
+@keyframes spin{100%{transform:rotate(360deg)}}
+.mine-txt{color:#FFB300;font-size:0.8em;font-weight:500}
+
+/* HASH RATE */
+.hashrate-display{background:#0a0a0a;border-radius:12px;padding:15px;text-align:center;margin-bottom:12px}
+.hashrate-val{font-size:2em;font-weight:700;color:#FFB300}
+.hashrate-lbl{font-size:0.72em;color:#555;text-transform:uppercase;letter-spacing:1px}
+
+/* PEERS */
+.peers-list{display:flex;flex-direction:column;gap:6px;max-height:150px;overflow-y:auto}
+.peer-item{background:#0a0a0a;border-radius:8px;padding:8px 12px;display:flex;justify-content:space-between;align-items:center;font-size:0.78em}
+.peer-addr{color:#666;font-family:'Courier New',monospace}
+.peer-status{color:#4ade80;font-weight:500}
+.no-peers{color:#333;text-align:center;padding:20px;font-size:0.82em}
+
+/* LOG */
+.logbox{background:#0a0a0a;border-radius:10px;padding:10px;height:180px;overflow-y:auto;font-family:'Courier New',monospace;font-size:0.73em}
+.le{padding:2px 0;border-bottom:1px solid rgba(255,255,255,0.02)}
+.ok{color:#4ade80}.err{color:#f87171}.inf{color:#FFB300}.dim{color:#333}
+
+/* BLOCK LIST */
+.block-list{display:flex;flex-direction:column;gap:6px;max-height:220px;overflow-y:auto}
+.bitem{background:#0a0a0a;border-radius:10px;padding:10px 14px;display:flex;justify-content:space-between;align-items:center;transition:all 0.3s;animation:slide-in 0.3s ease}
+@keyframes slide-in{from{opacity:0;transform:translateX(-10px)}to{opacity:1;transform:translateX(0)}}
+.bitem:hover{background:#111;border-left:2px solid #FFB300}
+.bitem-left .bnum{color:#FFB300;font-weight:600;font-size:0.85em}
+.bitem-left .bhash{color:#333;font-family:'Courier New',monospace;font-size:0.7em;margin-top:2px}
+.bitem-right{text-align:right}
+.breward{color:#4ade80;font-weight:600;font-size:0.82em}
+.btime{color:#333;font-size:0.68em;margin-top:2px}
+
+/* ADDR INPUT */
+.addr-inp{width:100%;background:#0a0a0a;border:1px solid rgba(255,179,0,0.15);border-radius:8px;padding:9px 12px;color:#fff;font-family:'Courier New',monospace;font-size:0.78em;outline:none;margin-bottom:10px;transition:border 0.3s}
+.addr-inp:focus{border-color:rgba(255,179,0,0.4)}
+
+/* PROGRESS BAR */
+.prog-wrap{background:#0a0a0a;border-radius:50px;height:6px;margin:8px 0;overflow:hidden}
+.prog-bar{height:100%;background:linear-gradient(90deg,#FFB300,#FF6600);border-radius:50px;transition:width 1s linear}
+
+/* NETWORK INFO */
+.net-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.net-item{background:#0a0a0a;border-radius:8px;padding:10px 12px;display:flex;justify-content:space-between;align-items:center}
+.net-k{font-size:0.72em;color:#555}
+.net-v{font-size:0.78em;font-weight:600;color:#FFB300}
+
+footer{text-align:center;padding:25px 0;color:#333;font-size:0.75em;border-top:1px solid rgba(255,179,0,0.06);margin-top:15px;position:relative;z-index:1}
+footer a{color:#FFB300;text-decoration:none}
+
+@media(max-width:768px){
+.main-grid{grid-template-columns:1fr}
+.box-full{grid-column:1}
+.stats-row{grid-template-columns:repeat(2,1fr)}
+.hdr{flex-direction:column;text-align:center}
+.net-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<canvas id="bg"></canvas>
+<div class="wrap">
+
+<!-- HEADER -->
+<div class="hdr">
+  <div class="hdr-left">
+    <img src="/honcoinlogo.svg" alt="HON" onerror="this.style.display='none'">
+    <div class="hdr-title">
+      <h1>SHIVRAI HON Miner</h1>
+      <p>Real-time Mining Dashboard</p>
+    </div>
+  </div>
+  <div class="hdr-right">
+    <div id="statusBadge" class="offline-badge"><span style="width:7px;height:7px;background:#f87171;border-radius:50%;display:inline-block"></span> Connecting...</div>
+    <span id="updateTime" style="font-size:0.72em;color:#333">—</span>
+  </div>
+</div>
+
+<!-- STATS -->
+<div class="stats-row">
+  <div class="scard"><div class="scard-icon">💰</div><div class="scard-val" id="s-bal">—</div><div class="scard-lbl">Balance HON</div></div>
+  <div class="scard"><div class="scard-icon">🧱</div><div class="scard-val" id="s-blocks">—</div><div class="scard-lbl">Total Blocks</div></div>
+  <div class="scard"><div class="scard-icon">⛏️</div><div class="scard-val" id="s-session">0</div><div class="scard-lbl">Session Mined</div></div>
+  <div class="scard"><div class="scard-icon">💎</div><div class="scard-val" id="s-earned">0</div><div class="scard-lbl">HON Earned</div></div>
+  <div class="scard"><div class="scard-icon">🌐</div><div class="scard-val" id="s-peers">—</div><div class="scard-lbl">Peers</div></div>
+  <div class="scard"><div class="scard-icon">📊</div><div class="scard-val" id="s-diff">—</div><div class="scard-lbl">Difficulty</div></div>
+</div>
+
+<!-- MAIN GRID -->
+<div class="main-grid">
+
+  <!-- MINING CONTROL -->
+  <div class="box">
+    <h2><span class="dot"></span> Mining Control</h2>
+    <div class="cfg-row">
+      <div class="cfg-item" style="flex:2">
+        <div class="lbl">RPC URL</div>
+        <input class="inp" id="rpcUrl" value="http://127.0.0.1:8332">
+      </div>
+      <div class="cfg-item">
+        <div class="lbl">User</div>
+        <input class="inp" id="rpcUser" value="shivraiuser">
+      </div>
+      <div class="cfg-item">
+        <div class="lbl">Password</div>
+        <input class="inp" type="password" id="rpcPass" placeholder="••••••">
+      </div>
+    </div>
+    <div class="lbl">Mining Address</div>
+    <input class="addr-inp" id="mAddr" placeholder="bc1q... (empty = auto generate)">
+    <div class="btn-row">
+      <button class="btn btn-gold" id="btnStart" onclick="startMining()">▶ Start Mining</button>
+      <button class="btn btn-red" id="btnStop" onclick="stopMining()" disabled>⏹ Stop</button>
+      <button class="btn btn-sm" onclick="getAddr()">🔑 Address</button>
+      <button class="btn btn-sm" onclick="loadStats()">🔄 Refresh</button>
+    </div>
+    <div class="mine-anim" id="anim">
+      <div class="mine-ring"></div>
+      <div class="mine-txt" id="animTxt">Mining block...</div>
+    </div>
+  </div>
+
+  <!-- HASH RATE -->
+  <div class="box">
+    <h2><span class="dot"></span> Hash Rate</h2>
+    <div class="hashrate-display">
+      <div class="hashrate-val" id="hashrate">0.00</div>
+      <div class="hashrate-lbl">MH/s</div>
+    </div>
+    <div class="lbl" style="margin-bottom:4px">Mining Progress</div>
+    <div class="prog-wrap"><div class="prog-bar" id="progBar" style="width:0%"></div></div>
+    <div style="display:flex;justify-content:space-between;font-size:0.7em;color:#333;margin-top:4px">
+      <span>Next Block</span>
+      <span id="nextBlock">—</span>
+    </div>
+    <div style="margin-top:15px">
+      <div class="lbl">Network Info</div>
+      <div class="net-grid" style="margin-top:6px">
+        <div class="net-item"><span class="net-k">Chain</span><span class="net-v" id="n-chain">—</span></div>
+        <div class="net-item"><span class="net-k">Reward</span><span class="net-v">200 HON</span></div>
+        <div class="net-item"><span class="net-k">Block Time</span><span class="net-v">5 Min</span></div>
+        <div class="net-item"><span class="net-k">Algorithm</span><span class="net-v">SHA-256</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- HON MINED GRAPH -->
+  <div class="box box-full">
+    <h2><span class="dot"></span> HON Mined Over Time</h2>
+    <div class="graph-wrap">
+      <canvas id="mineGraph"></canvas>
+    </div>
+    <div class="graph-label"><span>Oldest</span><span>Latest</span></div>
+  </div>
+
+  <!-- RECENT BLOCKS -->
+  <div class="box">
+    <h2><span class="dot"></span> Recent Blocks</h2>
+    <div class="block-list" id="blockList">
+      <div class="no-peers">No blocks yet</div>
+    </div>
+  </div>
+
+  <!-- LOG -->
+  <div class="box">
+    <h2><span class="dot"></span> Mining Log</h2>
+    <div class="logbox" id="log">
+      <div class="le dim">// Waiting for mining activity...</div>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  SHIVRAI HON Miner &nbsp;|&nbsp;
+  <a href="/">Explorer</a> &nbsp;|&nbsp;
+  <a href="https://ktusharuxd-afk.github.io/shivrai-hon-website" target="_blank">Website</a> &nbsp;|&nbsp;
+  <a href="https://shivrai-hon-explorer.onrender.com" target="_blank">Live Explorer</a>
+</footer>
+</div>
+
+<script>
+// BG PARTICLES
+const c=document.getElementById('bg'),cx=c.getContext('2d');
+function rs(){c.width=innerWidth;c.height=innerHeight}rs();
+window.addEventListener('resize',rs);
+const pts=[];
+for(let i=0;i<50;i++)pts.push({x:Math.random()*c.width,y:Math.random()*c.height,vx:(Math.random()-.5)*.3,vy:(Math.random()-.5)*.3,s:Math.random()*1.5+.5,a:Math.random()*.2+.05});
+function drawBg(){cx.clearRect(0,0,c.width,c.height);pts.forEach(p=>{p.x+=p.vx;p.y+=p.vy;if(p.x<0||p.x>c.width)p.vx*=-1;if(p.y<0||p.y>c.height)p.vy*=-1;cx.beginPath();cx.arc(p.x,p.y,p.s,0,Math.PI*2);cx.fillStyle=`rgba(255,179,0,${p.a})`;cx.fill()});pts.forEach((p,i)=>pts.slice(i+1).forEach(q=>{const d=Math.hypot(p.x-q.x,p.y-q.y);if(d<100){cx.beginPath();cx.moveTo(p.x,p.y);cx.lineTo(q.x,q.y);cx.strokeStyle=`rgba(255,179,0,${.06*(1-d/100)})`;cx.lineWidth=.5;cx.stroke()}}));requestAnimationFrame(drawBg)}drawBg();
+
+// MINE GRAPH
+const gc=document.getElementById('mineGraph');
+const gx=gc.getContext('2d');
+let graphData=[];
+function resizeGraph(){gc.width=gc.offsetWidth*devicePixelRatio;gc.height=gc.offsetHeight*devicePixelRatio;gx.scale(devicePixelRatio,devicePixelRatio)}
+resizeGraph();
+window.addEventListener('resize',resizeGraph);
+
+function drawGraph(){
+  const w=gc.offsetWidth,h=gc.offsetHeight;
+  gx.clearRect(0,0,w,h);
+  if(graphData.length<2)return;
+  const max=Math.max(...graphData,1);
+  // Grid lines
+  gx.strokeStyle='rgba(255,179,0,0.05)';gx.lineWidth=1;
+  for(let i=0;i<=4;i++){const y=h-(h*i/4);gx.beginPath();gx.moveTo(0,y);gx.lineTo(w,y);gx.stroke()}
+  // Fill
+  const grad=gx.createLinearGradient(0,0,0,h);
+  grad.addColorStop(0,'rgba(255,179,0,0.3)');
+  grad.addColorStop(1,'rgba(255,179,0,0.02)');
+  gx.beginPath();
+  graphData.forEach((v,i)=>{const x=w*i/(graphData.length-1),y=h-(h*v/max);i===0?gx.moveTo(x,y):gx.lineTo(x,y)});
+  gx.lineTo(w,h);gx.lineTo(0,h);gx.closePath();
+  gx.fillStyle=grad;gx.fill();
+  // Line
+  gx.beginPath();gx.strokeStyle='#FFB300';gx.lineWidth=2;
+  graphData.forEach((v,i)=>{const x=w*i/(graphData.length-1),y=h-(h*v/max);i===0?gx.moveTo(x,y):gx.lineTo(x,y)});
+  gx.stroke();
+  // Dots
+  graphData.forEach((v,i)=>{const x=w*i/(graphData.length-1),y=h-(h*v/max);gx.beginPath();gx.arc(x,y,3,0,Math.PI*2);gx.fillStyle='#FFB300';gx.fill()});
+}
+
+// STATE
+let timer=null,sessionCount=0,earnedHON=0,hashInterval=null,progInterval=null;
+let progVal=0,blockHistory=[];
+
+function addLog(msg,type='dim'){
+  const b=document.getElementById('log');
+  const d=document.createElement('div');
+  d.className='le '+type;
+  d.textContent='['+new Date().toLocaleTimeString()+'] '+msg;
+  b.insertBefore(d,b.firstChild);
+  if(b.children.length>80)b.removeChild(b.lastChild);
+}
+
+async function rpc(method,params=[]){
+  const url=document.getElementById('rpcUrl').value||'http://127.0.0.1:8332';
+  const user=document.getElementById('rpcUser').value||'shivraiuser';
+  const pass=document.getElementById('rpcPass').value||'';
+  const r=await fetch('/api/rpc',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({method,params,rpcUrl:url,rpcUser:user,rpcPass:pass})});
+  const d=await r.json();
+  if(d.error)throw new Error(d.error);
+  return d.result;
+}
+
+async function loadStats(){
+  try{
+    const info=await rpc('getblockchaininfo');
+    document.getElementById('s-blocks').textContent=info.blocks??'—';
+    document.getElementById('n-chain').textContent=(info.chain||'—').toUpperCase();
+    document.getElementById('s-diff').textContent=parseFloat(info.difficulty||0).toExponential(2);
+    document.getElementById('s-peers').textContent=info.blocks>0?'1+':'0';
+    document.getElementById('statusBadge').innerHTML='<span class="live-dot"></span> Node Online';
+    document.getElementById('statusBadge').className='live-badge';
+    document.getElementById('updateTime').textContent='Updated: '+new Date().toLocaleTimeString();
+    try{
+      const bal=await rpc('getbalance');
+      const b=parseFloat(bal).toFixed(2);
+      document.getElementById('s-bal').textContent=b;
+    }catch(e){}
+    // Load recent blocks
+    try{
+      const blocks=[];let hash=info.bestblockhash;
+      for(let i=0;i<8&&hash;i++){
+        const blk=await rpc('getblock',[hash]);
+        blocks.push(blk);hash=blk.previousblockhash;
+      }
+      blockHistory=blocks;renderBlocks(blocks);
+      // Update graph
+      const vals=blocks.reverse().map((_,i)=>(i+1)*200);
+      graphData=vals;drawGraph();
+    }catch(e){}
+  }catch(e){
+    document.getElementById('statusBadge').innerHTML='<span style="width:7px;height:7px;background:#f87171;border-radius:50%;display:inline-block"></span> Node Offline';
+    document.getElementById('statusBadge').className='offline-badge';
+    addLog('Node offline: '+e.message,'err');
+  }
+}
+
+function renderBlocks(blocks){
+  const el=document.getElementById('blockList');
+  if(!blocks||blocks.length===0){el.innerHTML='<div class="no-peers">No blocks mined yet</div>';return;}
+  el.innerHTML=blocks.slice(0,8).map(b=>`
+    <div class="bitem">
+      <div class="bitem-left">
+        <div class="bnum"># ${b.height}</div>
+        <div class="bhash">${(b.hash||'').substring(0,24)}...</div>
+      </div>
+      <div class="bitem-right">
+        <div class="breward">+200 HON</div>
+        <div class="btime">${new Date(b.time*1000).toLocaleTimeString()}</div>
+      </div>
+    </div>`).join('');
+}
+
+function startHashrateAnim(){
+  if(hashInterval)return;
+  hashInterval=setInterval(()=>{
+    const h=(Math.random()*3+1).toFixed(2);
+    document.getElementById('hashrate').textContent=h;
+  },800);
+}
+
+function stopHashrateAnim(){
+  clearInterval(hashInterval);hashInterval=null;
+  document.getElementById('hashrate').textContent='0.00';
+}
+
+function startProgress(){
+  progVal=0;
+  clearInterval(progInterval);
+  progInterval=setInterval(()=>{
+    progVal+=2;
+    if(progVal>100)progVal=0;
+    document.getElementById('progBar').style.width=progVal+'%';
+    const sec=Math.round((100-progVal)*3);
+    document.getElementById('nextBlock').textContent=sec+'s';
+  },600);
+}
+
+async function getAddr(){
+  try{
+    const a=await rpc('getnewaddress');
+    document.getElementById('mAddr').value=a;
+    addLog('New address: '+a,'inf');
+  }catch(e){addLog('Error: '+e.message,'err');}
+}
+
+async function mineOne(){
+  try{
+    let a=document.getElementById('mAddr').value.trim();
+    if(!a){a=await rpc('getnewaddress');document.getElementById('mAddr').value=a;}
+    document.getElementById('animTxt').textContent='Mining block #'+(parseInt(document.getElementById('s-blocks').textContent||0)+1)+'...';
+    const r=await rpc('generatetoaddress',[1,a]);
+    if(r&&r.length){
+      sessionCount++;earnedHON+=200;
+      document.getElementById('s-session').textContent=sessionCount;
+      document.getElementById('s-earned').textContent=earnedHON;
+      addLog('Block mined! Hash: '+r[0].substring(0,20)+'... (+200 HON)','ok');
+      graphData.push(earnedHON);
+      if(graphData.length>20)graphData.shift();
+      drawGraph();
+      await loadStats();
+    }
+  }catch(e){addLog('Mine error: '+e.message,'err');}
+}
+
+function startMining(){
+  if(timer)return;
+  document.getElementById('btnStart').disabled=true;
+  document.getElementById('btnStop').disabled=false;
+  document.getElementById('anim').style.display='block';
+  startHashrateAnim();startProgress();
+  addLog('Mining started!','inf');
+  mineOne();
+  timer=setInterval(mineOne,10000);
+}
+
+function stopMining(){
+  clearInterval(timer);timer=null;
+  document.getElementById('btnStart').disabled=false;
+  document.getElementById('btnStop').disabled=true;
+  document.getElementById('anim').style.display='none';
+  stopHashrateAnim();clearInterval(progInterval);
+  document.getElementById('progBar').style.width='0%';
+  document.getElementById('nextBlock').textContent='—';
+  addLog('Mining stopped.','inf');
+}
+
+loadStats();
+setInterval(loadStats,30000);
+</script>
+</body>
+</html>
