@@ -26,18 +26,25 @@ jobs:
 
     - name: Configure
       shell: msys2 {0}
-      run: |
-        cmake -B build -DENABLE_IPC=OFF -DBUILD_TESTS=OFF -DCMAKE_BUILD_TYPE=Release
+      run: cmake -B build -DENABLE_IPC=OFF -DBUILD_TESTS=OFF -DCMAKE_BUILD_TYPE=Release
 
     - name: Build
       shell: msys2 {0}
+      run: cmake --build build -j2 --target bitcoind bitcoin-cli
+
+    - name: Copy ALL required DLLs
+      shell: msys2 {0}
       run: |
-        cmake --build build -j2 --target bitcoind bitcoin-cli
+        mkdir -p release
+        cp build/bin/bitcoind.exe release/
+        cp build/bin/bitcoin-cli.exe release/
+        ldd build/bin/bitcoind.exe | grep mingw64 | awk '{print $3}' | xargs -I{} cp {} release/
+        ldd build/bin/bitcoin-cli.exe | grep mingw64 | awk '{print $3}' | xargs -I{} cp {} release/
+        echo "Files in release:"
+        ls -la release/
 
     - name: Upload
       uses: actions/upload-artifact@v4
       with:
         name: shivrai-hon-windows
-        path: |
-          build/bin/bitcoind.exe
-          build/bin/bitcoin-cli.exe
+        path: release/
