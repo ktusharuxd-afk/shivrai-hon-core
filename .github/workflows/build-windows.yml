@@ -1,26 +1,31 @@
 name: Build Windows
 on:
+  workflow_dispatch:
   push:
     branches: [ master ]
-  workflow_dispatch:
 jobs:
-  build-windows:
+  build:
     runs-on: windows-latest
     steps:
     - uses: actions/checkout@v4
-    - name: Install Boost
+    - name: Setup vcpkg
       run: |
-        choco install boost-msvc-14.3 -y
+        git clone https://github.com/microsoft/vcpkg.git C:\vcpkg
+        C:\vcpkg\bootstrap-vcpkg.bat
+        C:\vcpkg\vcpkg.exe integrate install
+    - name: Install deps
+      run: |
+        C:\vcpkg\vcpkg.exe install boost:x64-windows libevent:x64-windows openssl:x64-windows sqlite3:x64-windows zeromq:x64-windows
     - name: Configure
       run: |
-        cmake -B build -DENABLE_IPC=OFF -DBUILD_TESTS=OFF -DCMAKE_BUILD_TYPE=Release -DBoost_ROOT="C:/local/boost_1_83_0"
+        cmake -B build -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-windows -DENABLE_IPC=OFF -DBUILD_TESTS=OFF -DCMAKE_BUILD_TYPE=Release
     - name: Build
       run: |
         cmake --build build --config Release -j2 --target bitcoind bitcoin-cli
     - name: Upload
       uses: actions/upload-artifact@v4
       with:
-        name: shivrai-hon-windows-exe
+        name: shivrai-hon-windows
         path: |
           build/bin/Release/bitcoind.exe
           build/bin/Release/bitcoin-cli.exe
