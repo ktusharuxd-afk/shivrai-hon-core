@@ -8,19 +8,19 @@ jobs:
     runs-on: windows-latest
     steps:
     - uses: actions/checkout@v4
-    - name: Install dependencies
+    - name: Install Boost
       run: |
-        choco install cmake --installargs 'ADD_CMAKE_TO_PATH=System' -y
-        choco install visualstudio2022buildtools --package-parameters "--add Microsoft.VisualStudio.Workload.VCTools" -y
+        choco install boost-msvc-14.3 -y
     - name: Configure
-      run: cmake -B build -DENABLE_IPC=OFF -DBUILD_TESTS=OFF
+      run: |
+        cmake -B build -DENABLE_IPC=OFF -DBUILD_TESTS=OFF -DCMAKE_BUILD_TYPE=Release -DBoost_ROOT="C:/local/boost_1_83_0"
     - name: Build
-      run: cmake --build build --config Release -j4
-    - name: Upload artifacts
+      run: |
+        cmake --build build --config Release -j2 --target bitcoind bitcoin-cli
+    - name: Upload
       uses: actions/upload-artifact@v4
       with:
-        name: shivrai-hon-windows
+        name: shivrai-hon-windows-exe
         path: |
           build/bin/Release/bitcoind.exe
           build/bin/Release/bitcoin-cli.exe
-          build/bin/Release/bitcoin-qt.exe
