@@ -8,10 +8,10 @@ An independent decentralized cryptocurrency — SHIVRAI HON (HON).
 |-----------|-------|
 | Coin Name | SHIVRAI HON |
 | Symbol | HON |
-| Total Supply | 84,000,000 HON |
-| Block Reward | 200 HON |
+| Total Supply | Unlimited HON |
+| Block Reward | 2000 HON |
 | Block Time | 5 Minutes |
-| Halving | Every 2 Years |
+| Halving | OFF (210M Blocks) |
 | Algorithm | SHA-256 |
 | P2P Port | 8444 |
 | Consensus | Proof of Work |
