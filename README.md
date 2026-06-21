@@ -13,7 +13,6 @@ An independent decentralized cryptocurrency — SHIVRAI HON (HON).
 | Block Time | 5 Minutes |
 | Algorithm | HONPoW |
 | P2P Port | 8444 |
-| Consensus | Proof of Work |
 
 ## Links
 
