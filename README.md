@@ -12,12 +12,6 @@ An independent decentralized cryptocurrency — SHIVRAI HON (HON).
 | Block Reward | 2000 HON |
 | Block Time | 5 Minutes |
 | Algorithm | HONPoW |
-| P2P Port | 8444 |
-
-## Links
-
-- Explorer: https://shivrai-hon-explorer.onrender.com
-- GitHub: https://github.com/ktusharuxd-afk/shivrai-hon-core
 
 ## License
 
