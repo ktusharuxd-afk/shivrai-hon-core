@@ -15,7 +15,7 @@ This repository release is intentionally **non-consensus-changing** for the exis
 | Block target | **8 hours** (28800 seconds — live mainnet since genesis, June 2026) |
 | Consensus foundation | Proof of Work |
 
-**Important:** The included whitepaper contains an older/conflicting specification mentioning an 8-hour block target and a different emission schedule. This release does **not** silently change live consensus to match that document. Any future consensus change requires a separately specified network upgrade, activation plan, testnet validation and migration procedure.
+**Note:** The `chainparams.cpp` has been corrected to reflect the live mainnet value (8 hours, 28800 seconds). The network has operated at this block target since genesis (June 2026). Any future consensus parameter changes require a separately specified network upgrade, activation plan, testnet validation and migration procedure.
 
 ## Phase 1 documentation
 
