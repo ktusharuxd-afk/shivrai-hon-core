@@ -12,7 +12,7 @@ This repository release is intentionally **non-consensus-changing** for the exis
 | Symbol | HON |
 | Distribution | Mining-based |
 | Block reward | 2,000 HON (current repository implementation) |
-| Block target | 5 minutes (current repository implementation) |
+| Block target | **8 hours** (28800 seconds — live mainnet since genesis, June 2026) |
 | Consensus foundation | Proof of Work |
 
 **Important:** The included whitepaper contains an older/conflicting specification mentioning an 8-hour block target and a different emission schedule. This release does **not** silently change live consensus to match that document. Any future consensus change requires a separately specified network upgrade, activation plan, testnet validation and migration procedure.
