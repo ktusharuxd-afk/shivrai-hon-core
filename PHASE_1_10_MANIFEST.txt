@@ -1,0 +1,23 @@
+SHIVRAI HON GLOBAL BLOCKCHAIN — PHASE 1–10 CONSOLIDATED
+
+1  Protocol capability registry
+2  Network identity
+3  Genesis/monetary foundation
+4  EVM compatibility boundary
+5  EVM state/execution foundation
+6  Execution integration boundary
+7  Testnet/network operations
+8  Wallet/explorer/RPC integration points
+9  Fintech/DeFi/Gaming/RWA modules
+10 Interoperability/security activation boundaries
+
+AI: EXCLUDED BY DESIGN
+
+Validation: scripts/test_global_modules.sh PASS
+
+UPDATE: TREASURY + MULTISIG FOUNDATION
+- src/shivrai/treasury/treasury.h
+- src/shivrai/treasury/treasury.cpp
+- src/test/shivrai_treasury_tests.cpp
+- docs/SHIVRAI_TREASURY_AND_MULTISIG.md
+- deterministic fee allocation, burn accounting, treasury buckets, M-of-N approval and timelock foundation
