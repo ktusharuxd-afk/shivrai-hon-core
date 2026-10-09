@@ -4,6 +4,7 @@
 #include <vector>
 #include <unordered_map>
 #include <cstdint>
+#include <mutex>
 
 namespace shivrai::gaming {
 
@@ -57,6 +58,7 @@ public:
     size_t total_assets() const { return assets_.size(); }
 
 private:
+    mutable std::recursive_mutex mutex_;
     std::unordered_map<std::string, GameAsset> assets_;
     std::vector<GameReward> rewards_;
     std::string gen_id() const;

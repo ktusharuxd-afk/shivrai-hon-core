@@ -5,6 +5,7 @@
 #include <unordered_map>
 #include <cstdint>
 #include <functional>
+#include <mutex>
 
 namespace shivrai::interop {
 
@@ -63,6 +64,7 @@ public:
 private:
     uint32_t min_relayers_;
     uint64_t nonce_{0};
+    mutable std::recursive_mutex mutex_;
     std::unordered_map<std::string, CrossChainMessage> messages_;
     std::unordered_map<std::string, std::vector<RelayProof>> proofs_;
     MessageCallback on_confirmed_;

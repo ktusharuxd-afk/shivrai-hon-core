@@ -4,6 +4,7 @@
 #include <vector>
 #include <unordered_map>
 #include <cstdint>
+#include <mutex>
 
 namespace shivrai::assets {
 
@@ -53,6 +54,7 @@ public:
     size_t count() const { return assets_.size(); }
 
 private:
+    mutable std::recursive_mutex mutex_;
     std::unordered_map<std::string, RWAAsset> assets_;
     std::unordered_map<std::string, std::vector<RWATransfer>> transfers_;
     std::string gen_id() const;

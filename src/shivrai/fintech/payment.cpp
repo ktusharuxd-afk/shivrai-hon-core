@@ -2,8 +2,8 @@
 #include "payment.h"
 #include <stdexcept>
 #include <sstream>
-#include <chrono>
 #include <random>
+#include <mutex>
 
 namespace shivrai::fintech {
 
@@ -19,43 +19,58 @@ uint64_t PaymentProcessor::calc_fee(uint64_t amount) const {
 }
 
 std::string PaymentProcessor::gen_id(const std::string& prefix) const {
+    static std::mutex rng_mutex;
     static std::mt19937_64 rng(shivrai::common::monotonic_ns());
+    std::lock_guard<std::mutex> rng_lock(rng_mutex);
     std::ostringstream ss;
     ss << prefix << "_" << rng();
     return ss.str();
 }
 
 void PaymentProcessor::notify(const Payment& p) {
-    if (callback_) callback_(p);
+    // Callback lock बाहेर call करा — deadlock टाळण्यासाठी
+    StatusCallback cb;
+    {
+        std::lock_guard<std::recursive_mutex> lock(mutex_);
+        cb = callback_;
+    }
+    if (cb) cb(p);
 }
 
 PaymentResult PaymentProcessor::send(const std::string& from, const std::string& to,
                                       uint64_t amount, const std::string& currency,
                                       const std::string& memo) {
-    if (from.empty() || to.empty() || from == to || amount == 0 || currency.empty())
-        return {false, "", "invalid params", 0};
-
-    uint64_t fee = calc_fee(amount);
     Payment p;
-    p.id = gen_id("PAY");
-    p.from = from;
-    p.to = to;
-    p.amount = amount;
-    p.fee = fee;
-    p.currency = currency;
-    p.memo = memo;
-    p.type = PaymentType::TRANSFER;
-    p.status = PaymentStatus::CONFIRMED;
-    p.created_at = shivrai::common::now_seconds();
+    PaymentResult result;
+    {
+        std::lock_guard<std::recursive_mutex> lock(mutex_);
+        if (from.empty() || to.empty() || from == to || amount == 0 || currency.empty())
+            return {false, "", "invalid params", 0};
 
-    payments_[p.id] = p;
+        uint64_t fee = calc_fee(amount);
+        p.id = gen_id("PAY");
+        p.from = from;
+        p.to = to;
+        p.amount = amount;
+        p.fee = fee;
+        p.currency = currency;
+        p.memo = memo;
+        p.type = PaymentType::TRANSFER;
+        p.status = PaymentStatus::CONFIRMED;
+        p.created_at = shivrai::common::now_seconds();
+
+        payments_[p.id] = p;
+        result = {true, p.id, "", fee};
+    }
+    // Lock सोडल्यावर callback fire
     notify(p);
-    return {true, p.id, "", fee};
+    return result;
 }
 
 Invoice PaymentProcessor::create_invoice(const std::string& merchant_id, uint64_t amount,
                                           const std::string& currency, uint64_t ttl_seconds,
                                           const std::string& memo) {
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
     Invoice inv;
     inv.id = gen_id("INV");
     inv.merchant_id = merchant_id;
@@ -70,6 +85,7 @@ Invoice PaymentProcessor::create_invoice(const std::string& merchant_id, uint64_
 
 PaymentResult PaymentProcessor::pay_invoice(const std::string& invoice_id,
                                              const std::string& payer) {
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
     auto it = invoices_.find(invoice_id);
     if (it == invoices_.end()) return {false, "", "invoice not found", 0};
     auto& inv = it->second;
@@ -79,6 +95,7 @@ PaymentResult PaymentProcessor::pay_invoice(const std::string& invoice_id,
     if (inv.expires_at > 0 && now > inv.expires_at)
         return {false, "", "invoice expired", 0};
 
+    // `send` recursive_mutex ने safe — same thread re-lock करू शकतो
     auto result = send(payer, inv.merchant_id, inv.amount, inv.currency,
                        "Invoice: " + invoice_id);
     if (result.success) {
@@ -91,6 +108,7 @@ PaymentResult PaymentProcessor::pay_invoice(const std::string& invoice_id,
 PaymentResult PaymentProcessor::batch_send(const std::string& from,
                                             const std::vector<std::pair<std::string,uint64_t>>& recipients,
                                             const std::string& currency) {
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
     if (recipients.empty()) return {false, "", "empty batch", 0};
 
     uint64_t total_fee = 0;
@@ -105,21 +123,30 @@ PaymentResult PaymentProcessor::batch_send(const std::string& from,
 }
 
 PaymentStatus PaymentProcessor::status(const std::string& payment_id) const {
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
     auto it = payments_.find(payment_id);
     if (it == payments_.end()) return PaymentStatus::FAILED;
     return it->second.status;
 }
 
 bool PaymentProcessor::refund(const std::string& payment_id) {
-    auto it = payments_.find(payment_id);
-    if (it == payments_.end()) return false;
-    if (it->second.status != PaymentStatus::CONFIRMED) return false;
-    it->second.status = PaymentStatus::REFUNDED;
-    notify(it->second);
+    Payment p_copy;
+    bool do_notify = false;
+    {
+        std::lock_guard<std::recursive_mutex> lock(mutex_);
+        auto it = payments_.find(payment_id);
+        if (it == payments_.end()) return false;
+        if (it->second.status != PaymentStatus::CONFIRMED) return false;
+        it->second.status = PaymentStatus::REFUNDED;
+        p_copy = it->second;
+        do_notify = true;
+    }
+    if (do_notify) notify(p_copy);
     return true;
 }
 
 std::vector<Payment> PaymentProcessor::history(const std::string& addr) const {
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
     std::vector<Payment> result;
     for (const auto& [id, p] : payments_) {
         if (p.from == addr || p.to == addr) result.push_back(p);

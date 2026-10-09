@@ -2,11 +2,14 @@
 #include "shivrai/common/time.hpp"
 #include <random>
 #include <sstream>
+#include <mutex>
 
 namespace shivrai::gaming {
 
 std::string GameAssetRegistry::gen_id() const {
+    static std::mutex rng_mutex;
     static std::mt19937_64 rng(shivrai::common::monotonic_ns());
+    std::lock_guard<std::mutex> rng_lock(rng_mutex);
     std::ostringstream ss;
     ss << "GASSET_" << rng();
     return ss.str();
@@ -15,6 +18,7 @@ std::string GameAssetRegistry::gen_id() const {
 std::string GameAssetRegistry::mint_asset(const std::string& owner, const std::string& game_id,
                                            const std::string& asset_type, const std::string& name,
                                            AssetRarity rarity, const std::string& metadata_uri) {
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
     if (owner.empty() || game_id.empty() || name.empty()) return "";
     GameAsset a;
     a.id = gen_id();
@@ -31,6 +35,7 @@ std::string GameAssetRegistry::mint_asset(const std::string& owner, const std::s
 }
 
 bool GameAssetRegistry::transfer_asset(const std::string& id, const std::string& to) {
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
     auto it = assets_.find(id);
     if (it == assets_.end() || it->second.status != AssetStatus::ACTIVE) return false;
     it->second.owner = to;
@@ -38,6 +43,7 @@ bool GameAssetRegistry::transfer_asset(const std::string& id, const std::string&
 }
 
 bool GameAssetRegistry::lock_asset(const std::string& id) {
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
     auto it = assets_.find(id);
     if (it == assets_.end() || it->second.status != AssetStatus::ACTIVE) return false;
     it->second.status = AssetStatus::LOCKED;
@@ -45,6 +51,7 @@ bool GameAssetRegistry::lock_asset(const std::string& id) {
 }
 
 bool GameAssetRegistry::unlock_asset(const std::string& id) {
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
     auto it = assets_.find(id);
     if (it == assets_.end() || it->second.status != AssetStatus::LOCKED) return false;
     it->second.status = AssetStatus::ACTIVE;
@@ -52,6 +59,7 @@ bool GameAssetRegistry::unlock_asset(const std::string& id) {
 }
 
 bool GameAssetRegistry::burn_asset(const std::string& id) {
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
     auto it = assets_.find(id);
     if (it == assets_.end()) return false;
     it->second.status = AssetStatus::BURNED;
@@ -59,6 +67,7 @@ bool GameAssetRegistry::burn_asset(const std::string& id) {
 }
 
 bool GameAssetRegistry::level_up(const std::string& id, uint64_t xp_gained) {
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
     auto it = assets_.find(id);
     if (it == assets_.end() || it->second.status != AssetStatus::ACTIVE) return false;
     it->second.experience += xp_gained;
@@ -69,6 +78,7 @@ bool GameAssetRegistry::level_up(const std::string& id, uint64_t xp_gained) {
 bool GameAssetRegistry::record_reward(const std::string& player, const std::string& game_id,
                                        uint64_t amount, const std::string& currency,
                                        const std::string& reason) {
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
     GameReward r;
     r.player = player;
     r.game_id = game_id;
@@ -81,11 +91,13 @@ bool GameAssetRegistry::record_reward(const std::string& player, const std::stri
 }
 
 const GameAsset* GameAssetRegistry::get_asset(const std::string& id) const {
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
     auto it = assets_.find(id);
     return it == assets_.end() ? nullptr : &it->second;
 }
 
 std::vector<GameAsset> GameAssetRegistry::assets_by_owner(const std::string& owner) const {
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
     std::vector<GameAsset> result;
     for (const auto& [id, a] : assets_)
         if (a.owner == owner) result.push_back(a);
@@ -93,6 +105,7 @@ std::vector<GameAsset> GameAssetRegistry::assets_by_owner(const std::string& own
 }
 
 std::vector<GameAsset> GameAssetRegistry::assets_by_game(const std::string& game_id) const {
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
     std::vector<GameAsset> result;
     for (const auto& [id, a] : assets_)
         if (a.game_id == game_id) result.push_back(a);
@@ -100,6 +113,7 @@ std::vector<GameAsset> GameAssetRegistry::assets_by_game(const std::string& game
 }
 
 std::vector<GameReward> GameAssetRegistry::rewards_by_player(const std::string& player) const {
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
     std::vector<GameReward> result;
     for (const auto& r : rewards_)
         if (r.player == player) result.push_back(r);

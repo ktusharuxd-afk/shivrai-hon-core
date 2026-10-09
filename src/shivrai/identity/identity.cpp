@@ -2,11 +2,16 @@
 #include "shivrai/common/time.hpp"
 #include <random>
 #include <sstream>
+#include <mutex>
 
 namespace shivrai::identity {
 
 std::string IdentityRegistry::gen_id(const std::string& prefix) const {
+    // RNG static — त्याला वेगळा lock हवा
+    static std::mutex rng_mutex;
     static std::mt19937_64 rng(shivrai::common::monotonic_ns());
+    std::lock_guard<std::mutex> rng_lock(rng_mutex);
+
     std::ostringstream ss;
     ss << prefix << "_" << rng();
     return ss.str();
@@ -15,6 +20,7 @@ std::string IdentityRegistry::gen_id(const std::string& prefix) const {
 bool IdentityRegistry::register_did(const std::string& id,
                                      const std::string& controller,
                                      const std::string& public_key) {
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
     if (id.empty() || controller.empty() || public_key.empty()) return false;
     if (dids_.count(id)) return false;
     DID d;
@@ -28,6 +34,7 @@ bool IdentityRegistry::register_did(const std::string& id,
 }
 
 bool IdentityRegistry::deactivate_did(const std::string& id) {
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
     auto it = dids_.find(id);
     if (it == dids_.end()) return false;
     it->second.active = false;
@@ -35,11 +42,13 @@ bool IdentityRegistry::deactivate_did(const std::string& id) {
 }
 
 const DID* IdentityRegistry::resolve(const std::string& did) const {
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
     auto it = dids_.find(did);
     return it == dids_.end() ? nullptr : &it->second;
 }
 
 bool IdentityRegistry::is_active(const std::string& did) const {
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
     auto d = resolve(did);
     return d && d->active;
 }
@@ -49,6 +58,7 @@ std::string IdentityRegistry::issue_credential(const std::string& issuer_did,
                                                  const std::string& type,
                                                  const std::string& value,
                                                  uint64_t ttl_seconds) {
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
     if (!is_active(issuer_did) || subject_did.empty()) return "";
     Credential c;
     c.id = gen_id("CRED");
@@ -64,6 +74,7 @@ std::string IdentityRegistry::issue_credential(const std::string& issuer_did,
 }
 
 bool IdentityRegistry::revoke_credential(const std::string& id) {
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
     auto it = credentials_.find(id);
     if (it == credentials_.end()) return false;
     it->second.status = CredentialStatus::REVOKED;
@@ -71,11 +82,13 @@ bool IdentityRegistry::revoke_credential(const std::string& id) {
 }
 
 const Credential* IdentityRegistry::get_credential(const std::string& id) const {
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
     auto it = credentials_.find(id);
     return it == credentials_.end() ? nullptr : &it->second;
 }
 
 bool IdentityRegistry::verify_credential(const std::string& id) const {
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
     auto c = get_credential(id);
     if (!c || c->status != CredentialStatus::ACTIVE) return false;
     if (c->expires_at > 0) {
@@ -87,6 +100,7 @@ bool IdentityRegistry::verify_credential(const std::string& id) const {
 
 bool IdentityRegistry::set_kyc(const std::string& did, const std::string& level,
                                  const std::string& verifier) {
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
     if (!is_active(did)) return false;
     KYCRecord r;
     r.did = did;
@@ -99,16 +113,19 @@ bool IdentityRegistry::set_kyc(const std::string& did, const std::string& level,
 }
 
 const KYCRecord* IdentityRegistry::get_kyc(const std::string& did) const {
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
     auto it = kyc_records_.find(did);
     return it == kyc_records_.end() ? nullptr : &it->second;
 }
 
 bool IdentityRegistry::is_kyc_verified(const std::string& did) const {
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
     auto r = get_kyc(did);
     return r && r->verified;
 }
 
 std::vector<Credential> IdentityRegistry::credentials_by_subject(const std::string& did) const {
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
     std::vector<Credential> result;
     for (const auto& [id, c] : credentials_)
         if (c.subject_did == did) result.push_back(c);

@@ -4,6 +4,7 @@
 #include <vector>
 #include <unordered_map>
 #include <cstdint>
+#include <mutex>
 
 namespace shivrai::identity {
 
@@ -62,6 +63,7 @@ public:
     size_t did_count() const { return dids_.size(); }
 
 private:
+    mutable std::recursive_mutex mutex_;
     std::unordered_map<std::string, DID> dids_;
     std::unordered_map<std::string, Credential> credentials_;
     std::unordered_map<std::string, KYCRecord> kyc_records_;

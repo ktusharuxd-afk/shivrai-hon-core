@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include <unordered_map>
+#include <mutex>
 #include <functional>
 
 namespace shivrai::fintech {
@@ -103,6 +104,7 @@ public:
 
 private:
     uint32_t fee_bps_;
+    mutable std::recursive_mutex mutex_;
     std::unordered_map<std::string, Payment> payments_;
     std::unordered_map<std::string, Invoice> invoices_;
     StatusCallback callback_;

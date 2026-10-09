@@ -2,11 +2,14 @@
 #include "shivrai/common/time.hpp"
 #include <random>
 #include <sstream>
+#include <mutex>
 
 namespace shivrai::assets {
 
 std::string RWARegistry::gen_id() const {
+    static std::mutex rng_mutex;
     static std::mt19937_64 rng(shivrai::common::monotonic_ns());
+    std::lock_guard<std::mutex> rng_lock(rng_mutex);
     std::ostringstream ss;
     ss << "RWA_" << rng();
     return ss.str();
@@ -17,6 +20,7 @@ std::string RWARegistry::register_asset(const std::string& owner, RWAType type,
                                           const std::string& currency, const std::string& issuer,
                                           const std::string& jurisdiction,
                                           const std::string& legal_doc_hash) {
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
     if (owner.empty() || value == 0 || currency.empty()) return "";
     RWAAsset a;
     a.id = gen_id();
@@ -35,6 +39,7 @@ std::string RWARegistry::register_asset(const std::string& owner, RWAType type,
 }
 
 bool RWARegistry::activate(const std::string& id) {
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
     auto it = assets_.find(id);
     if (it == assets_.end() || it->second.status != RWAStatus::PENDING) return false;
     it->second.status = RWAStatus::ACTIVE;
@@ -42,6 +47,7 @@ bool RWARegistry::activate(const std::string& id) {
 }
 
 bool RWARegistry::freeze(const std::string& id) {
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
     auto it = assets_.find(id);
     if (it == assets_.end()) return false;
     it->second.status = RWAStatus::FROZEN;
@@ -49,6 +55,7 @@ bool RWARegistry::freeze(const std::string& id) {
 }
 
 bool RWARegistry::redeem(const std::string& id) {
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
     auto it = assets_.find(id);
     if (it == assets_.end() || it->second.status != RWAStatus::ACTIVE) return false;
     it->second.status = RWAStatus::REDEEMED;
@@ -57,6 +64,7 @@ bool RWARegistry::redeem(const std::string& id) {
 
 bool RWARegistry::transfer(const std::string& asset_id, const std::string& to,
                              const std::string& tx_ref) {
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
     auto it = assets_.find(asset_id);
     if (it == assets_.end() || it->second.status != RWAStatus::ACTIVE) return false;
     RWATransfer t;
@@ -71,11 +79,13 @@ bool RWARegistry::transfer(const std::string& asset_id, const std::string& to,
 }
 
 const RWAAsset* RWARegistry::get(const std::string& id) const {
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
     auto it = assets_.find(id);
     return it == assets_.end() ? nullptr : &it->second;
 }
 
 std::vector<RWAAsset> RWARegistry::by_owner(const std::string& owner) const {
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
     std::vector<RWAAsset> result;
     for (const auto& [id, a] : assets_)
         if (a.owner == owner) result.push_back(a);
@@ -83,6 +93,7 @@ std::vector<RWAAsset> RWARegistry::by_owner(const std::string& owner) const {
 }
 
 std::vector<RWATransfer> RWARegistry::transfer_history(const std::string& asset_id) const {
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
     auto it = transfers_.find(asset_id);
     return it == transfers_.end() ? std::vector<RWATransfer>{} : it->second;
 }

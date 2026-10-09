@@ -2,11 +2,15 @@
 #include "shivrai/common/time.hpp"
 #include <random>
 #include <sstream>
+#include <mutex>
 
 namespace shivrai::interop {
 
 std::string MessageRelay::gen_id() const {
+    static std::mutex rng_mutex;
     static std::mt19937_64 rng(shivrai::common::monotonic_ns());
+    std::lock_guard<std::mutex> rng_lock(rng_mutex);
+
     std::ostringstream ss;
     ss << "MSG_" << rng();
     return ss.str();
@@ -20,6 +24,7 @@ std::string MessageRelay::send_message(ChainId src, ChainId dst,
                                         const std::string& payload,
                                         uint64_t amount,
                                         const std::string& asset) {
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
     if (sender.empty() || receiver.empty()) return "";
     CrossChainMessage m;
     m.id = gen_id();
@@ -40,6 +45,7 @@ std::string MessageRelay::send_message(ChainId src, ChainId dst,
 bool MessageRelay::relay_message(const std::string& msg_id,
                                   const std::string& relayer,
                                   const std::string& signature) {
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
     auto it = messages_.find(msg_id);
     if (it == messages_.end()) return false;
     if (it->second.status != MessageStatus::PENDING) return false;
@@ -56,6 +62,7 @@ bool MessageRelay::relay_message(const std::string& msg_id,
 }
 
 bool MessageRelay::confirm_message(const std::string& msg_id) {
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
     auto it = messages_.find(msg_id);
     if (it == messages_.end()) return false;
     it->second.status = MessageStatus::CONFIRMED;
@@ -64,6 +71,7 @@ bool MessageRelay::confirm_message(const std::string& msg_id) {
 }
 
 bool MessageRelay::fail_message(const std::string& msg_id) {
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
     auto it = messages_.find(msg_id);
     if (it == messages_.end()) return false;
     it->second.status = MessageStatus::FAILED;
@@ -71,16 +79,19 @@ bool MessageRelay::fail_message(const std::string& msg_id) {
 }
 
 const CrossChainMessage* MessageRelay::get_message(const std::string& id) const {
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
     auto it = messages_.find(id);
     return it == messages_.end() ? nullptr : &it->second;
 }
 
 MessageStatus MessageRelay::status(const std::string& id) const {
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
     auto m = get_message(id);
     return m ? m->status : MessageStatus::FAILED;
 }
 
 std::vector<CrossChainMessage> MessageRelay::pending_messages(ChainId dst) const {
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
     std::vector<CrossChainMessage> result;
     for (const auto& [id, m] : messages_)
         if (m.dst_chain == dst && m.status == MessageStatus::PENDING)
