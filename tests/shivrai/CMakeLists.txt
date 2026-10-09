@@ -27,6 +27,7 @@ set(SHIVRAI_SOURCES
     ${REPO_ROOT}/src/shivrai/assets/token_ledger.cpp
     ${REPO_ROOT}/src/shivrai/monetary_policy.cpp
     ${REPO_ROOT}/src/shivrai/genesis.cpp
+    ${REPO_ROOT}/src/shivrai/evm_compat.cpp
 )
 
 add_executable(test_identity test_identity.cpp ${SHIVRAI_SOURCES})
@@ -37,6 +38,7 @@ add_executable(test_payment  test_payment.cpp  ${SHIVRAI_SOURCES})
 add_executable(test_concurrency test_concurrency.cpp ${SHIVRAI_SOURCES})
 add_executable(test_monetary_policy test_monetary_policy.cpp ${SHIVRAI_SOURCES})
 add_executable(test_genesis test_genesis.cpp ${SHIVRAI_SOURCES})
+add_executable(test_evm_compat test_evm_compat.cpp ${SHIVRAI_SOURCES})
 
 enable_testing()
 add_test(NAME test_identity COMMAND test_identity)
@@ -47,3 +49,4 @@ add_test(NAME test_payment  COMMAND test_payment)
 add_test(NAME test_concurrency COMMAND test_concurrency)
 add_test(NAME test_monetary_policy COMMAND test_monetary_policy)
 add_test(NAME test_genesis COMMAND test_genesis)
+add_test(NAME test_evm_compat COMMAND test_evm_compat)
