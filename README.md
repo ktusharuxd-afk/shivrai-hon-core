@@ -1,5 +1,7 @@
 # SHIVRAI HON (HON)
 
+![Shivrai Tests](https://github.com/ktusharuxd-afk/shivrai-hon-core/actions/workflows/shivrai-tests.yml/badge.svg)
+
 SHIVRAI HON is an independent decentralized blockchain project built from a Bitcoin Core-derived codebase. The long-term direction is a modular global blockchain for payments, smart contracts, fintech, DeFi, gaming, digital assets, identity and cross-chain interoperability.
 
 ## Current live-chain safety baseline
