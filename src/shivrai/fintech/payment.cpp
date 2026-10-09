@@ -1,3 +1,4 @@
+#include "shivrai/common/time.hpp"
 #include "payment.h"
 #include <stdexcept>
 #include <sstream>
@@ -18,7 +19,7 @@ uint64_t PaymentProcessor::calc_fee(uint64_t amount) const {
 }
 
 std::string PaymentProcessor::gen_id(const std::string& prefix) const {
-    static std::mt19937_64 rng(std::chrono::steady_clock::now().time_since_epoch().count());
+    static std::mt19937_64 rng(shivrai::common::monotonic_ns());
     std::ostringstream ss;
     ss << prefix << "_" << rng();
     return ss.str();
@@ -45,7 +46,7 @@ PaymentResult PaymentProcessor::send(const std::string& from, const std::string&
     p.memo = memo;
     p.type = PaymentType::TRANSFER;
     p.status = PaymentStatus::CONFIRMED;
-    p.created_at = (uint64_t)std::chrono::system_clock::now().time_since_epoch().count();
+    p.created_at = shivrai::common::now_seconds();
 
     payments_[p.id] = p;
     notify(p);
@@ -61,8 +62,7 @@ Invoice PaymentProcessor::create_invoice(const std::string& merchant_id, uint64_
     inv.amount = amount;
     inv.currency = currency;
     inv.memo = memo;
-    inv.expires_at = (uint64_t)std::chrono::system_clock::now().time_since_epoch().count()
-                     + ttl_seconds * 1000000000ULL;
+    inv.expires_at = shivrai::common::now_seconds() + ttl_seconds;
     inv.paid = false;
     invoices_[inv.id] = inv;
     return inv;
@@ -75,7 +75,7 @@ PaymentResult PaymentProcessor::pay_invoice(const std::string& invoice_id,
     auto& inv = it->second;
     if (inv.paid) return {false, "", "already paid", 0};
 
-    uint64_t now = (uint64_t)std::chrono::system_clock::now().time_since_epoch().count();
+    uint64_t now = shivrai::common::now_seconds();
     if (inv.expires_at > 0 && now > inv.expires_at)
         return {false, "", "invoice expired", 0};
 
