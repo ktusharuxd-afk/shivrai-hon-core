@@ -75,3 +75,41 @@ External applications may use AI independently while interacting with SHIVRAI.
 ## License
 
 Distributed under the MIT software license.
+
+## Shivrai modules (foundation, default-off, non-consensus)
+
+Experimental blockchain modules for payments, DeFi, fintech, gaming, digital
+assets, identity and cross-chain interoperability. All default-off and
+non-consensus — they do not affect the existing SHIVRAI HON network.
+
+| Module | Purpose | Tests |
+|--------|---------|-------|
+| Identity | DID registry, KYC, credentials | 8 |
+| Interop | Cross-chain message relay | 7 |
+| RWA | Real-world asset registry | 6 |
+| Gaming | Game asset registry | 7 |
+| Payment | Payments, invoices, refunds | 6 |
+| Token Ledger | Native token standard | foundation |
+| AMM | Automated market maker | foundation |
+| Treasury | Multisig, timelock | foundation |
+| EVM Compat | Solidity compatibility | foundation |
+| Monetary Policy | Supply schedule | foundation |
+
+**Test coverage:** 34 tests, all passing ✅
+
+**Documentation:** [docs/shivrai/README.md](docs/shivrai/README.md)
+
+**Test suite:** [tests/shivrai/README.md](tests/shivrai/README.md)
+
+**CI:** Every push to `src/shivrai/**` or `tests/shivrai/**` triggers
+[Shivrai Tests](.github/workflows/shivrai-tests.yml) — independent from
+Bitcoin Core CI, runs in ~30 seconds.
+
+**Design principles:**
+
+1. Non-consensus — no changes to Bitcoin Core consensus rules
+2. Default-off — all features opt-in via runtime flags
+3. Bitcoin Core safe — no modifications to consensus-critical files
+4. Thread-safe — all registries use `std::recursive_mutex`
+5. Unit-tested — every public method has test coverage
+6. Standalone build — tests build independently of Bitcoin Core
