@@ -53,7 +53,7 @@ jobs:
         TOTAL=0
         PASSED=0
         
-        for t in test_identity test_interop test_rwa test_gaming test_payment test_concurrency; do
+        for t in test_identity test_interop test_rwa test_gaming test_payment test_concurrency test_monetary_policy; do
           echo ""
           echo "════════════════════════════════════════"
           echo "  Running $t"
