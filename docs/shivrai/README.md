@@ -15,15 +15,17 @@ Experimental, non-consensus modules for the SHIVRAI HON blockchain.
 | RWA | `assets/rwa.h` | Real-world asset registry | 6 |
 | Gaming | `gaming/assets.h` | Game asset registry | 7 |
 | Payment | `fintech/payment.h` | Payment processor, invoices | 6 |
-| Token Ledger | `assets/token_ledger.h` | Native token standard | (planned) |
-| AMM | `defi/amm.h` | Automated market maker | (planned) |
-| Treasury | `treasury/treasury.h` | Multisig, timelock, fee allocation | (planned) |
-| EVM Compat | `evm_compat.h` | Solidity compatibility layer | (planned) |
-| EVM State | `evm_state.h` | EVM state storage | (planned) |
-| Monetary Policy | `monetary_policy.h` | Supply schedule | (planned) |
-| Protocol Features | `protocol_features.h` | Feature registry | — |
+| Token Ledger | `assets/token_ledger.h` | Native token standard | 25 |
+| AMM | `defi/amm.h` | Automated market maker | 25 |
+| Treasury | `treasury/treasury.h` | Multisig, timelock, fee allocation | 32 |
+| EVM Compat | `evm_compat.h` | Solidity compatibility layer | 31 |
+| EVM State | `evm_state.h` | EVM state storage | 37 |
+| Monetary Policy | `monetary_policy.h` | Supply schedule | 17 |
+| Genesis | `genesis.h` | Genesis specification | 24 |
+| Protocol Features | `protocol_features.h` | Feature registry | 25 |
+| Concurrency | (stress test) | Multi-thread verification | 6 |
 
-**Current test coverage: 34 tests, all passing** ✅
+**Total test coverage: 256 tests, all passing** ✅
 
 ---
 
