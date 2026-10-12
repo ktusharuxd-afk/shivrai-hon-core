@@ -28,6 +28,7 @@ set(SHIVRAI_SOURCES
     ${REPO_ROOT}/src/shivrai/monetary_policy.cpp
     ${REPO_ROOT}/src/shivrai/genesis.cpp
     ${REPO_ROOT}/src/shivrai/defi/amm.cpp
+    ${REPO_ROOT}/src/shivrai/treasury/treasury.cpp
     ${REPO_ROOT}/src/shivrai/evm_compat.cpp
     ${REPO_ROOT}/src/shivrai/evm_state.cpp
 )
@@ -44,6 +45,7 @@ add_executable(test_evm_compat test_evm_compat.cpp ${SHIVRAI_SOURCES})
 add_executable(test_evm_state test_evm_state.cpp ${SHIVRAI_SOURCES})
 add_executable(test_token_ledger test_token_ledger.cpp ${SHIVRAI_SOURCES})
 add_executable(test_amm test_amm.cpp ${SHIVRAI_SOURCES})
+add_executable(test_treasury test_treasury.cpp ${SHIVRAI_SOURCES})
 
 enable_testing()
 add_test(NAME test_identity COMMAND test_identity)
@@ -58,3 +60,4 @@ add_test(NAME test_evm_compat COMMAND test_evm_compat)
 add_test(NAME test_evm_state COMMAND test_evm_state)
 add_test(NAME test_token_ledger COMMAND test_token_ledger)
 add_test(NAME test_amm COMMAND test_amm)
+add_test(NAME test_treasury COMMAND test_treasury)
