@@ -32,6 +32,15 @@ set(SHIVRAI_SOURCES
     ${REPO_ROOT}/src/shivrai/protocol_features.cpp
     ${REPO_ROOT}/src/shivrai/evm_compat.cpp
     ${REPO_ROOT}/src/shivrai/evm_state.cpp
+    ${REPO_ROOT}/src/shivrai/wallet/wallet.cpp
+    ${REPO_ROOT}/src/shivrai/wallet/hd_keychain.cpp
+    ${REPO_ROOT}/src/shivrai/wallet/bech32.cpp
+    ${REPO_ROOT}/src/shivrai/wallet/blake2b.cpp
+    ${REPO_ROOT}/src/shivrai/wallet/argon2.cpp
+    ${REPO_ROOT}/src/shivrai/wallet/mnemonic.cpp
+    ${REPO_ROOT}/src/shivrai/wallet/wordlist.cpp
+    ${REPO_ROOT}/src/shivrai/wallet/key_store.cpp
+    ${REPO_ROOT}/src/shivrai/wallet/asset_registry.cpp
 )
 
 add_executable(test_identity test_identity.cpp ${SHIVRAI_SOURCES})
@@ -48,6 +57,19 @@ add_executable(test_token_ledger test_token_ledger.cpp ${SHIVRAI_SOURCES})
 add_executable(test_amm test_amm.cpp ${SHIVRAI_SOURCES})
 add_executable(test_treasury test_treasury.cpp ${SHIVRAI_SOURCES})
 add_executable(test_protocol_features test_protocol_features.cpp ${SHIVRAI_SOURCES})
+add_executable(test_wallet test_wallet.cpp ${SHIVRAI_SOURCES})
+
+# Link OpenSSL + secp256k1 for wallet module
+find_package(OpenSSL REQUIRED)
+find_library(SECP256K1_LIB secp256k1)
+
+if(SECP256K1_LIB)
+    message(STATUS "Found libsecp256k1: ${SECP256K1_LIB}")
+else()
+    message(FATAL_ERROR "libsecp256k1 not found — install libsecp256k1-dev")
+endif()
+
+target_link_libraries(test_wallet PRIVATE OpenSSL::Crypto ${SECP256K1_LIB})
 
 enable_testing()
 add_test(NAME test_identity COMMAND test_identity)
@@ -64,3 +86,4 @@ add_test(NAME test_token_ledger COMMAND test_token_ledger)
 add_test(NAME test_amm COMMAND test_amm)
 add_test(NAME test_treasury COMMAND test_treasury)
 add_test(NAME test_protocol_features COMMAND test_protocol_features)
+add_test(NAME test_wallet COMMAND test_wallet)
