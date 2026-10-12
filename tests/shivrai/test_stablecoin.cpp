@@ -50,17 +50,23 @@ int main() {
     CHECK(sc.GetVault(*vid)->debt == 500);
     CHECK(sc.TotalSupply() == 500);
 
-    CHECK(sc.WithdrawCollateral(*vid, 10, 100));
-    CHECK(sc.GetVault(*vid)->collateral_amount == 5);
+    CHECK(sc.WithdrawCollateral(*vid, 3, 100));
+    CHECK(sc.GetVault(*vid)->collateral_amount == 12);
     auto info = sc.GetVaultInfo(*vid, 100);
     CHECK(info.has_value());
-    CHECK(info->collateral == 5);
+    CHECK(info->collateral == 12);
     CHECK(info->debt == 500);
-    CHECK(info->collateral_value == 500);
-    CHECK(info->collateral_ratio_bps == 10000);
-    CHECK(info->liquidatable);
+    CHECK(info->collateral_value == 1200);
+    CHECK(info->collateral_ratio_bps == 24000);
+    CHECK(!info->liquidatable);
 
-    CHECK(sc.Liquidate(*vid, 100));
+    auto info2 = sc.GetVaultInfo(*vid, 50);
+    CHECK(info2.has_value());
+    CHECK(info2->collateral_value == 600);
+    CHECK(info2->collateral_ratio_bps == 12000);
+    CHECK(info2->liquidatable);
+
+    CHECK(sc.Liquidate(*vid, 50));
     CHECK(sc.VaultCount() == 1);
     CHECK(sc.TotalSupply() == 0);
     CHECK(sc.StabilityPoolDeposit("carol", 1000));
@@ -77,7 +83,7 @@ int main() {
     CHECK(sc.TotalSupply() == 1000);
     auto s2 = sc.PSMSwapOut(500);
     CHECK(s2.has_value() && *s2 == 500);
-    CHECK(sc.PSMReserve() == 4500);
+    CHECK(sc.PSMReserve() == 3500);
     CHECK(sc.TotalSupply() == 500);
     CHECK(!sc.PSMSwapOut(100000).has_value());
 
