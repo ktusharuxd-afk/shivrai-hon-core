@@ -1,0 +1,672 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Shivrai Hon Core — C++17 Blockchain</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="A complete, self-contained blockchain node in C++17. PoA + PoS consensus, WASM smart contracts, ECDSA wallet, P2P gossip.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#ffffff;
+  --bg-soft:#fafbfc;
+  --bg-tint:#f5f7fa;
+  --border:#e5e7eb;
+  --border-strong:#d1d5db;
+  --text:#0a0a0a;
+  --text-2:#4b5563;
+  --text-3:#9ca3af;
+  --blue:#2563eb;
+  --blue-soft:#dbeafe;
+  --purple:#7c3aed;
+  --purple-soft:#ede9fe;
+  --grad:linear-gradient(135deg,#2563eb 0%,#7c3aed 100%);
+  --grad-soft:linear-gradient(135deg,#dbeafe 0%,#ede9fe 100%);
+  --shadow-sm:0 1px 2px rgba(16,24,40,0.04);
+  --shadow:0 4px 12px rgba(16,24,40,0.06);
+  --shadow-lg:0 12px 32px rgba(16,24,40,0.08);
+  --radius:12px;
+  --radius-lg:16px;
+  --font:'Inter',-apple-system,BlinkMacSystemFont,system-ui,sans-serif;
+  --mono:'JetBrains Mono','SF Mono',ui-monospace,monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  font-family:var(--font);
+  background:var(--bg);
+  color:var(--text);
+  line-height:1.6;
+  font-size:15px;
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+}
+
+/* ============ Nav ============ */
+nav{
+  position:sticky;top:0;z-index:50;
+  background:rgba(255,255,255,0.85);
+  backdrop-filter:saturate(180%) blur(12px);
+  -webkit-backdrop-filter:saturate(180%) blur(12px);
+  border-bottom:1px solid var(--border);
+}
+.nav-inner{
+  max-width:1080px;margin:0 auto;
+  display:flex;align-items:center;
+  padding:14px 24px;gap:32px;
+}
+.logo{
+  display:flex;align-items:center;gap:10px;
+  font-weight:700;font-size:15px;color:var(--text);
+  text-decoration:none;letter-spacing:-0.01em;
+}
+.logo-mark{
+  width:28px;height:28px;border-radius:8px;
+  background:var(--grad);
+  display:flex;align-items:center;justify-content:center;
+  color:#fff;font-weight:800;font-size:14px;
+  box-shadow:0 4px 12px rgba(37,99,235,0.25);
+}
+.nav-links{display:flex;gap:24px;margin-left:auto;align-items:center}
+.nav-links a{
+  color:var(--text-2);text-decoration:none;
+  font-size:14px;font-weight:500;
+  transition:color 0.15s;
+}
+.nav-links a:hover{color:var(--text)}
+.nav-cta{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:7px 14px;border-radius:8px;
+  background:var(--text);color:#fff;
+  font-size:13px;font-weight:600;text-decoration:none;
+  transition:opacity 0.15s;
+}
+.nav-cta:hover{opacity:0.9}
+
+/* ============ Hero ============ */
+.hero{
+  max-width:1080px;margin:0 auto;
+  padding:88px 24px 64px;
+  text-align:center;
+  position:relative;
+}
+.hero::before{
+  content:'';position:absolute;
+  top:0;left:50%;transform:translateX(-50%);
+  width:800px;height:500px;
+  background:radial-gradient(ellipse at center, rgba(37,99,235,0.08) 0%, transparent 60%);
+  pointer-events:none;z-index:0;
+}
+.hero > *{position:relative;z-index:1}
+.badge{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:5px 12px;border-radius:999px;
+  background:var(--bg-tint);
+  border:1px solid var(--border);
+  font-size:12px;font-weight:500;color:var(--text-2);
+  margin-bottom:24px;
+  letter-spacing:0.01em;
+}
+.badge-dot{
+  width:6px;height:6px;border-radius:50%;
+  background:#10b981;
+  box-shadow:0 0 0 3px rgba(16,185,129,0.15);
+}
+.hero h1{
+  font-size:clamp(40px,6vw,68px);
+  font-weight:800;
+  letter-spacing:-0.035em;
+  line-height:1.05;
+  color:var(--text);
+  margin-bottom:20px;
+}
+.grad-text{
+  background:var(--grad);
+  -webkit-background-clip:text;
+  background-clip:text;
+  -webkit-text-fill-color:transparent;
+}
+.hero p{
+  font-size:18px;
+  color:var(--text-2);
+  max-width:620px;
+  margin:0 auto 32px;
+  line-height:1.6;
+}
+.hero-actions{
+  display:flex;gap:12px;justify-content:center;flex-wrap:wrap;
+}
+.btn{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:12px 22px;border-radius:10px;
+  font-size:14px;font-weight:600;
+  text-decoration:none;
+  transition:all 0.15s;
+  font-family:inherit;
+  cursor:pointer;
+  border:none;
+}
+.btn-primary{
+  background:var(--text);color:#fff;
+  box-shadow:0 4px 12px rgba(0,0,0,0.12);
+}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 8px 20px rgba(0,0,0,0.15)}
+.btn-secondary{
+  background:#fff;color:var(--text);
+  border:1px solid var(--border-strong);
+}
+.btn-secondary:hover{background:var(--bg-tint);border-color:var(--text-3)}
+
+/* ============ Stats strip ============ */
+.stats{
+  max-width:1080px;margin:0 auto;
+  padding:0 24px 80px;
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
+  gap:1px;
+  background:var(--border);
+  border:1px solid var(--border);
+  border-radius:var(--radius-lg);
+  overflow:hidden;
+}
+.stat{
+  background:#fff;
+  padding:24px 20px;
+  text-align:center;
+}
+.stat-value{
+  font-size:28px;font-weight:800;
+  letter-spacing:-0.02em;
+  background:var(--grad);
+  -webkit-background-clip:text;
+  background-clip:text;
+  -webkit-text-fill-color:transparent;
+  font-family:var(--mono);
+  line-height:1.2;
+  margin-bottom:4px;
+}
+.stat-label{
+  font-size:12px;color:var(--text-3);
+  text-transform:uppercase;
+  letter-spacing:0.08em;
+  font-weight:500;
+}
+
+/* ============ Sections ============ */
+.wrap{max-width:1080px;margin:0 auto;padding:0 24px}
+section{padding:64px 0}
+section:nth-child(even){background:var(--bg-soft)}
+h2{
+  font-size:32px;font-weight:700;
+  letter-spacing:-0.025em;
+  margin-bottom:12px;
+  color:var(--text);
+}
+h2 .accent{
+  background:var(--grad);
+  -webkit-background-clip:text;
+  background-clip:text;
+  -webkit-text-fill-color:transparent;
+}
+.section-sub{
+  font-size:16px;color:var(--text-2);
+  margin-bottom:40px;max-width:560px;
+}
+
+/* ============ Feature grid ============ */
+.features{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+  gap:16px;
+}
+.feature{
+  background:#fff;
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:24px;
+  transition:all 0.2s;
+  box-shadow:var(--shadow-sm);
+}
+.feature:hover{
+  border-color:var(--border-strong);
+  box-shadow:var(--shadow);
+  transform:translateY(-2px);
+}
+.feature-icon{
+  width:40px;height:40px;
+  border-radius:10px;
+  background:var(--grad-soft);
+  display:flex;align-items:center;justify-content:center;
+  font-size:20px;
+  margin-bottom:16px;
+}
+.feature h3{
+  font-size:15px;font-weight:600;
+  color:var(--text);
+  margin-bottom:6px;
+  letter-spacing:-0.01em;
+}
+.feature p{
+  font-size:14px;color:var(--text-2);
+  line-height:1.55;
+}
+
+/* ============ Code block ============ */
+.code-block{
+  background:#0a0a0a;
+  border-radius:var(--radius);
+  padding:20px 24px;
+  overflow-x:auto;
+  position:relative;
+  box-shadow:var(--shadow);
+}
+.code-block::before{
+  content:'';position:absolute;
+  top:14px;left:20px;
+  display:flex;gap:6px;
+}
+.code-block pre{
+  font-family:var(--mono);
+  font-size:13.5px;
+  color:#e5e7eb;
+  line-height:1.7;
+  margin:0;
+  padding-top:16px;
+}
+.code-block .cm{color:#6b7280}
+.code-block .cmd{color:#60a5fa}
+
+/* ============ Quick start ============ */
+.quickstart{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:24px;
+  align-items:start;
+}
+@media(max-width:800px){.quickstart{grid-template-columns:1fr}}
+.qs-list{
+  display:flex;flex-direction:column;gap:16px;
+}
+.qs-item{
+  display:flex;gap:14px;
+  padding:16px;
+  background:#fff;
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  transition:border-color 0.15s;
+}
+.qs-item:hover{border-color:var(--border-strong)}
+.qs-num{
+  width:28px;height:28px;
+  border-radius:50%;
+  background:var(--grad);
+  color:#fff;
+  font-size:13px;font-weight:700;
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;
+}
+.qs-item h4{
+  font-size:14px;font-weight:600;
+  margin-bottom:4px;
+}
+.qs-item p{
+  font-size:13px;color:var(--text-2);
+  font-family:var(--mono);
+  line-height:1.5;
+}
+
+/* ============ RPC table ============ */
+.rpc-table{
+  background:#fff;
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  overflow:hidden;
+}
+.rpc-table table{
+  width:100%;
+  border-collapse:collapse;
+}
+.rpc-table th{
+  text-align:left;
+  padding:14px 20px;
+  background:var(--bg-tint);
+  font-size:12px;
+  font-weight:600;
+  color:var(--text-2);
+  text-transform:uppercase;
+  letter-spacing:0.06em;
+  border-bottom:1px solid var(--border);
+}
+.rpc-table td{
+  padding:14px 20px;
+  border-bottom:1px solid var(--border);
+  font-size:14px;
+  vertical-align:top;
+}
+.rpc-table tr:last-child td{border-bottom:none}
+.rpc-table tr:hover td{background:var(--bg-soft)}
+.rpc-table td:first-child{
+  font-weight:600;color:var(--text);
+  width:140px;
+  font-family:var(--font);
+}
+.rpc-table td:last-child{
+  font-family:var(--mono);
+  font-size:13px;
+  color:var(--text-2);
+  line-height:1.7;
+}
+
+/* ============ Modules grid ============ */
+.modules{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(200px,1fr));
+  gap:10px;
+}
+.module{
+  padding:12px 16px;
+  background:#fff;
+  border:1px solid var(--border);
+  border-radius:10px;
+  font-size:13px;
+  font-weight:500;
+  color:var(--text-2);
+  font-family:var(--mono);
+  transition:all 0.15s;
+}
+.module:hover{
+  border-color:var(--blue);
+  color:var(--blue);
+  background:var(--blue-soft);
+}
+
+/* ============ CTA ============ */
+.cta{
+  text-align:center;
+  padding:80px 24px;
+  background:linear-gradient(135deg,#f5f7fa 0%,#ede9fe 100%);
+  border-radius:var(--radius-lg);
+  margin:40px 24px;
+  max-width:1080px;
+  margin-left:auto;margin-right:auto;
+}
+.cta h2{font-size:28px;margin-bottom:12px}
+.cta p{color:var(--text-2);margin-bottom:28px;font-size:16px}
+
+/* ============ Footer ============ */
+footer{
+  border-top:1px solid var(--border);
+  background:var(--bg-soft);
+  padding:40px 24px;
+  margin-top:80px;
+}
+.footer-inner{
+  max-width:1080px;margin:0 auto;
+  display:flex;justify-content:space-between;
+  align-items:center;gap:24px;
+  flex-wrap:wrap;
+}
+.footer-left{
+  font-size:13px;color:var(--text-3);
+}
+.footer-left strong{color:var(--text-2);font-weight:600}
+.footer-links{display:flex;gap:24px}
+.footer-links a{
+  color:var(--text-3);text-decoration:none;
+  font-size:13px;transition:color 0.15s;
+}
+.footer-links a:hover{color:var(--text)}
+
+/* ============ Utility ============ */
+.inline-code{
+  font-family:var(--mono);
+  font-size:0.88em;
+  background:var(--bg-tint);
+  border:1px solid var(--border);
+  padding:2px 6px;
+  border-radius:5px;
+  color:var(--purple);
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <a href="/" class="logo">
+      <div class="logo-mark">S</div>
+      Shivrai Hon Core
+    </a>
+    <div class="nav-links">
+      <a href="#features">Features</a>
+      <a href="#quickstart">Quick Start</a>
+      <a href="#rpc">RPC</a>
+      <a href="#modules">Modules</a>
+      <a href="https://github.com/ktusharuxd-afk/shivrai-hon-core" target="_blank" class="nav-cta">
+        GitHub →
+      </a>
+    </div>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="badge">
+    <span class="badge-dot"></span>
+    v1.0.0 · Production-ready
+  </div>
+  <h1>
+    A complete <span class="grad-text">blockchain node</span><br>
+    built in C++17.
+  </h1>
+  <p>
+    PoA + PoS consensus, WASM smart contracts, ECDSA wallet, SQLite persistence, P2P gossip — all in ~13,500 lines of clean C++.
+  </p>
+  <div class="hero-actions">
+    <a href="#quickstart" class="btn btn-primary">Get Started →</a>
+    <a href="https://github.com/ktusharuxd-afk/shivrai-hon-core" target="_blank" class="btn btn-secondary">
+      View on GitHub
+    </a>
+  </div>
+</section>
+
+<div class="stats">
+  <div class="stat">
+    <div class="stat-value">52+</div>
+    <div class="stat-label">RPC Methods</div>
+  </div>
+  <div class="stat">
+    <div class="stat-value">14</div>
+    <div class="stat-label">Modules</div>
+  </div>
+  <div class="stat">
+    <div class="stat-value">2</div>
+    <div class="stat-label">Consensus</div>
+  </div>
+  <div class="stat">
+    <div class="stat-value">100%</div>
+    <div class="stat-label">Tests Pass</div>
+  </div>
+</div>
+
+<section id="features" style="background:var(--bg-soft)">
+  <div class="wrap">
+    <h2>Everything you need to <span class="accent">build on-chain</span></h2>
+    <p class="section-sub">A self-contained node with all the primitives for real-world blockchain applications.</p>
+
+    <div class="features">
+      <div class="feature">
+        <div class="feature-icon">⚡</div>
+        <h3>Dual Consensus</h3>
+        <p>Proof-of-Authority for speed, Proof-of-Stake with stake-weighted leader selection.</p>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">🔐</div>
+        <h3>ECDSA Accounts</h3>
+        <p>secp256k1 signatures verified on-chain. Nonce replay protection + balance checks.</p>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">📦</div>
+        <h3>WASM Contracts</h3>
+        <p>Embedded wasm3 runtime. Deploy, call, and meter gas for smart contracts.</p>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">💾</div>
+        <h3>SQLite Persistence</h3>
+        <p>WAL mode with batched writes per block. State survives restart reliably.</p>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">🌐</div>
+        <h3>P2P Gossip</h3>
+        <p>Peer discovery, block propagation, and startup chain sync across nodes.</p>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">🧩</div>
+        <h3>14 Domain Modules</h3>
+        <p>Stablecoin, lending, NFT, AMM, staking, governance, multisig, and more.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="quickstart">
+  <div class="wrap">
+    <h2>Get started in <span class="accent">under a minute</span></h2>
+    <p class="section-sub">Clone, build, run. No external dependencies beyond OpenSSL, SQLite, and CMake.</p>
+
+    <div class="quickstart">
+      <div class="qs-list">
+        <div class="qs-item">
+          <div class="qs-num">1</div>
+          <div>
+            <h4>Clone repository</h4>
+            <p>git clone https://github.com/ktusharuxd-afk/shivrai-hon-core.git</p>
+          </div>
+        </div>
+        <div class="qs-item">
+          <div class="qs-num">2</div>
+          <div>
+            <h4>Build the project</h4>
+            <p>cd shivrai-hon-core && bash scripts/build.sh</p>
+          </div>
+        </div>
+        <div class="qs-item">
+          <div class="qs-num">3</div>
+          <div>
+            <h4>Run the node</h4>
+            <p>bash scripts/run_node.sh</p>
+          </div>
+        </div>
+        <div class="qs-item">
+          <div class="qs-num">4</div>
+          <div>
+            <h4>Explore your node</h4>
+            <p>Your explorer runs at <span style="color:#7c3aed">localhost:8545</span> — local to your machine.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="code-block">
+<pre><span class="cm"># Clone</span>
+<span class="cmd">git clone</span> https://github.com/ktusharuxd-afk/shivrai-hon-core.git
+<span class="cmd">cd</span> shivrai-hon-core
+
+<span class="cm"># Build + test</span>
+<span class="cmd">bash</span> scripts/build.sh
+
+<span class="cm"># Run node (listens on :8545)</span>
+<span class="cmd">bash</span> scripts/run_node.sh
+
+<span class="cm"># Or with PoS consensus</span>
+<span class="cmd">./build/shivrai-node</span> --consensus pos --port 8545
+
+<span class="cm"># Two-node P2P demo</span>
+<span class="cmd">bash</span> scripts/two_nodes.sh</pre>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="rpc" style="background:var(--bg-soft)">
+  <div class="wrap">
+    <h2>JSON-RPC <span class="accent">API</span></h2>
+    <p class="section-sub">Every module exposes methods over HTTP. POST to <span class="inline-code">/rpc</span> with JSON-RPC 2.0 payload.</p>
+
+    <div class="rpc-table">
+      <table>
+        <thead>
+          <tr><th>Module</th><th>Methods</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>chain</td><td>chain_info · chain_latest · chain_getBlock · account_balance · tx_submit · nonce_get</td></tr>
+          <tr><td>stablecoin</td><td>stablecoin_mint · stablecoin_balance · stablecoin_supply</td></tr>
+          <tr><td>lending</td><td>lending_deposit · lending_borrow · lending_position</td></tr>
+          <tr><td>governance</td><td>governance_propose · governance_vote · governance_result</td></tr>
+          <tr><td>token</td><td>token_deploy · token_info</td></tr>
+          <tr><td>nft</td><td>nft_mint · nft_ownerOf · nft_transfer · nft_tokenURI · nft_count</td></tr>
+          <tr><td>amm</td><td>amm_addLiquidity · amm_reserves · amm_swap</td></tr>
+          <tr><td>staking</td><td>staking_stake · staking_unstake · staking_info</td></tr>
+          <tr><td>multisig</td><td>multisig_create · multisig_sign · multisig_info</td></tr>
+          <tr><td>p2p</td><td>p2p_peers · p2p_addPeer</td></tr>
+          <tr><td>pos</td><td>validator_register · validator_stake · validator_list · pos_leader</td></tr>
+          <tr><td>contract</td><td>contract_deploy · contract_call · contract_info · contract_list · contract_code</td></tr>
+          <tr><td>explorer</td><td>explorer_stats</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section id="modules">
+  <div class="wrap">
+    <h2>All <span class="accent">14 modules</span></h2>
+    <p class="section-sub">Each module registers its own RPC methods and state namespace.</p>
+
+    <div class="modules">
+      <div class="module">chain</div>
+      <div class="module">stablecoin</div>
+      <div class="module">lending</div>
+      <div class="module">governance</div>
+      <div class="module">token</div>
+      <div class="module">nft</div>
+      <div class="module">amm</div>
+      <div class="module">staking</div>
+      <div class="module">multisig</div>
+      <div class="module">p2p</div>
+      <div class="module">pos</div>
+      <div class="module">contract</div>
+      <div class="module">explorer</div>
+      <div class="module">consensus</div>
+    </div>
+  </div>
+</section>
+
+<div class="cta">
+  <h2>Ready to build?</h2>
+  <p>Clone the repo and have a blockchain node running in 60 seconds.</p>
+  <div class="hero-actions">
+    <a href="https://github.com/ktusharuxd-afk/shivrai-hon-core" target="_blank" class="btn btn-primary">
+      Get Started on GitHub →
+    </a>
+    <a href="https://github.com/ktusharuxd-afk/shivrai-hon-core/blob/main/WHITEPAPER.md" target="_blank" class="btn btn-secondary">
+      Read Whitepaper
+    </a>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-inner">
+    <div class="footer-left">
+      <strong>Shivrai Hon Core</strong> · v1.0.0 · MIT License
+    </div>
+    <div class="footer-links">
+      <a href="https://github.com/ktusharuxd-afk/shivrai-hon-core" target="_blank">GitHub</a>
+      <a href="https://github.com/ktusharuxd-afk/shivrai-hon-core/blob/main/WHITEPAPER.md" target="_blank">Whitepaper</a>
+      <a href="https://github.com/ktusharuxd-afk/shivrai-hon-core/blob/main/CONTRIBUTING.md" target="_blank">Contributing</a>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
