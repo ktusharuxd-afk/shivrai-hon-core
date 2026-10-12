@@ -41,6 +41,7 @@ set(SHIVRAI_SOURCES
     ${REPO_ROOT}/src/shivrai/wallet/wordlist.cpp
     ${REPO_ROOT}/src/shivrai/wallet/key_store.cpp
     ${REPO_ROOT}/src/shivrai/wallet/asset_registry.cpp
+    ${REPO_ROOT}/src/shivrai/oracle/oracle.cpp
 )
 
 add_executable(test_identity test_identity.cpp ${SHIVRAI_SOURCES})
@@ -58,6 +59,7 @@ add_executable(test_amm test_amm.cpp ${SHIVRAI_SOURCES})
 add_executable(test_treasury test_treasury.cpp ${SHIVRAI_SOURCES})
 add_executable(test_protocol_features test_protocol_features.cpp ${SHIVRAI_SOURCES})
 add_executable(test_wallet test_wallet.cpp ${SHIVRAI_SOURCES})
+add_executable(test_oracle test_oracle.cpp ${SHIVRAI_SOURCES})
 
 # Link OpenSSL + secp256k1 for wallet module
 find_package(OpenSSL REQUIRED)
@@ -70,6 +72,7 @@ else()
 endif()
 
 target_link_libraries(test_wallet PRIVATE OpenSSL::Crypto ${SECP256K1_LIB})
+target_link_libraries(test_oracle PRIVATE OpenSSL::Crypto ${SECP256K1_LIB})
 
 enable_testing()
 add_test(NAME test_identity COMMAND test_identity)
@@ -87,3 +90,4 @@ add_test(NAME test_amm COMMAND test_amm)
 add_test(NAME test_treasury COMMAND test_treasury)
 add_test(NAME test_protocol_features COMMAND test_protocol_features)
 add_test(NAME test_wallet COMMAND test_wallet)
+add_test(NAME test_oracle COMMAND test_oracle)
