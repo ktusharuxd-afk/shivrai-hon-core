@@ -2,97 +2,201 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>Shivrai Explorer</title>
+<title>Overview · Shivrai Node</title>
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<style>
-  * { box-sizing: border-box; }
-  body { margin:0; font-family: -apple-system,Segoe UI,Roboto,sans-serif;
-         background:#0a0a0f; color:#e8e8f0; }
-  header { background:linear-gradient(90deg,#ff6b35,#f7c59f);
-           padding:20px 30px; }
-  h1 { margin:0; font-size:22px; letter-spacing:1px; color:#0a0a0f; }
-  .sub { font-size:12px; color:#0a0a0f; opacity:.7; margin-top:4px; }
-  .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
-          gap:16px; padding:24px; }
-  .card { background:#141420; border:1px solid #22222f; border-radius:10px;
-          padding:18px; }
-  .card h3 { margin:0 0 10px; font-size:12px; text-transform:uppercase;
-             letter-spacing:1.5px; color:#8888a0; }
-  .card .v { font-size:22px; font-weight:600; color:#f7c59f;
-             word-break:break-all; }
-  .card .v.sm { font-size:13px; color:#a0d8ef; }
-  .row { display:flex; gap:20px; padding:0 24px 24px; flex-wrap:wrap; }
-  .panel { flex:1; min-width:320px; background:#141420;
-           border:1px solid #22222f; border-radius:10px; padding:18px; }
-  .panel h3 { margin:0 0 14px; font-size:13px; color:#8888a0;
-              text-transform:uppercase; letter-spacing:1.5px; }
-  table { width:100%; border-collapse:collapse; font-size:13px; }
-  th,td { padding:8px 6px; text-align:left; border-bottom:1px solid #22222f; }
-  th { color:#8888a0; font-weight:500; font-size:11px;
-       text-transform:uppercase; letter-spacing:1px; }
-  td { color:#c8c8d8; }
-  .hash { font-family:monospace; font-size:12px; color:#a0d8ef; }
-  button { background:#ff6b35; color:#0a0a0f; border:none;
-           padding:8px 16px; border-radius:6px; cursor:pointer;
-           font-weight:600; font-size:13px; }
-  button:hover { background:#f7c59f; }
-  input { background:#0a0a0f; color:#e8e8f0; border:1px solid #22222f;
-          padding:8px 12px; border-radius:6px; font-size:13px;
-          width:100%; margin-bottom:8px; }
-  .status { font-size:11px; color:#5fbf8a; padding:0 24px 12px; }
-  pre { background:#0a0a0f; border:1px solid #22222f; padding:12px;
-        border-radius:6px; font-size:12px; overflow:auto;
-        max-height:300px; color:#a0d8ef; }
-</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/style.css">
 </head>
 <body>
-<header>
-  <h1>⚡ SHIVRAI HON CORE</h1>
-  <div class="sub">Blockchain Explorer &middot; v1.0.0</div>
-</header>
 
-<div class="status" id="status">connecting...</div>
+<div class="app">
 
-<div class="grid">
-  <div class="card"><h3>Block Height</h3><div class="v" id="height">—</div></div>
-  <div class="card"><h3>Latest Hash</h3><div class="v sm" id="lhash">—</div></div>
-  <div class="card"><h3>Mempool</h3><div class="v" id="mpool">—</div></div>
-  <div class="card"><h3>Stable Supply</h3><div class="v" id="stable">—</div></div>
-  <div class="card"><h3>NFT Count</h3><div class="v" id="nft">—</div></div>
-  <div class="card"><h3>Validator</h3><div class="v sm" id="validator">—</div></div>
-</div>
-
-<div class="row">
-  <div class="panel">
-    <h3>Call RPC Method</h3>
-    <input id="m" placeholder="method (e.g. chain_info)" value="chain_info">
-    <input id="p" placeholder='params JSON (e.g. {"address":"0x..."})' value="{}">
-    <button onclick="callRpc()">Execute</button>
-    <pre id="out">// response will appear here</pre>
-  </div>
-
-  <div class="panel">
-    <h3>Quick Actions</h3>
-    <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px">
-      <button onclick="q('chain_latest')">Latest Block</button>
-      <button onclick="q('explorer_stats')">Stats</button>
-      <button onclick="q('nft_count')">NFT Count</button>
-      <button onclick="q('stablecoin_supply')">Stable Supply</button>
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-row">
+        <div class="brand-mark">S</div>
+        <div>
+          <div class="brand-name">Shivrai Node</div>
+          <div class="brand-sub">v1.0.0 · chain_id=shivrai-1</div>
+        </div>
+      </div>
+      <div class="brand-meta">
+        <span class="status" id="side-status">connected</span>
+      </div>
     </div>
-    <h3>Modules</h3>
-    <table>
-      <tr><th>Module</th><th>Methods</th></tr>
-      <tr><td>chain</td><td>chain_info, chain_latest, chain_getBlock, account_balance, tx_submit</td></tr>
-      <tr><td>stablecoin</td><td>stablecoin_mint, stablecoin_balance, stablecoin_supply</td></tr>
-      <tr><td>lending</td><td>lending_deposit, lending_borrow, lending_position</td></tr>
-      <tr><td>governance</td><td>governance_propose, governance_vote, governance_result</td></tr>
-      <tr><td>token</td><td>token_deploy, token_info</td></tr>
-      <tr><td>nft</td><td>nft_mint, nft_ownerOf, nft_transfer, nft_tokenURI, nft_count</td></tr>
-      <tr><td>amm</td><td>amm_addLiquidity, amm_reserves, amm_swap</td></tr>
-      <tr><td>staking</td><td>staking_stake, staking_unstake, staking_info</td></tr>
-      <tr><td>multisig</td><td>multisig_create, multisig_sign, multisig_info</td></tr>
-      <tr><td>explorer</td><td>explorer_stats</td></tr>
-    </table>
+
+    <div class="nav-section">Network</div>
+    <a href="/" class="nav-item active">
+      <svg class="nav-icon" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+      Overview
+    </a>
+    <a href="#rpc" class="nav-item">
+      <svg class="nav-icon" viewBox="0 0 24 24"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
+      RPC Console
+    </a>
+    <a href="#modules" class="nav-item">
+      <svg class="nav-icon" viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+      Modules
+    </a>
+
+    <div class="nav-section">Account</div>
+    <a href="/wallet.html" class="nav-item">
+      <svg class="nav-icon" viewBox="0 0 24 24"><rect x="2" y="6" width="20" height="14" rx="2"/><path d="M16 12h2"/><path d="M2 10h20"/></svg>
+      Wallet
+    </a>
+    <a href="/wallet.html#tx" class="nav-item">
+      <svg class="nav-icon" viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+      Send Transaction
+    </a>
+
+    <div class="nav-section">Links</div>
+    <a href="https://github.com/ktusharuxd-afk/shivrai-hon-core" target="_blank" class="nav-item">
+      <svg class="nav-icon" viewBox="0 0 24 24"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
+      GitHub
+    </a>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="main">
+
+    <header class="topbar">
+      <div class="topbar-title">Overview</div>
+      <div class="topbar-right">
+        <div class="topbar-item">Block <b id="tb-height">—</b></div>
+        <div class="topbar-item">Mempool <b id="tb-mempool">—</b></div>
+        <div class="status" id="tb-status">connected</div>
+      </div>
+    </header>
+
+    <div class="content">
+
+      <div class="page-header">
+        <h1>Network Overview</h1>
+        <p>Live status of your Shivrai blockchain node.</p>
+      </div>
+
+      <!-- KPIs -->
+      <div class="kpi-grid">
+        <div class="kpi">
+          <div class="kpi-label">Block Height</div>
+          <div class="kpi-value" id="k-height">—</div>
+          <div class="kpi-meta">latest block number</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-label">Mempool</div>
+          <div class="kpi-value" id="k-mempool">—</div>
+          <div class="kpi-meta">pending transactions</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-label">Stablecoin Supply</div>
+          <div class="kpi-value" id="k-stable">—</div>
+          <div class="kpi-meta">total minted</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-label">NFT Count</div>
+          <div class="kpi-value" id="k-nft">—</div>
+          <div class="kpi-meta">tokens minted</div>
+        </div>
+      </div>
+
+      <!-- Latest info -->
+      <div class="grid-2">
+
+        <div class="panel">
+          <div class="panel-header">
+            <div>
+              <div class="panel-title">Latest Block</div>
+              <div class="panel-sub">most recent block hash</div>
+            </div>
+          </div>
+          <div class="panel-body">
+            <div class="kpi-value sm" id="k-lhash" style="color:var(--text)">—</div>
+            <div class="hr"></div>
+            <div class="muted">Validator</div>
+            <div class="kpi-value sm" id="k-validator" style="margin-top:6px">—</div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-header">
+            <div>
+              <div class="panel-title">P2P Peers</div>
+              <div class="panel-sub">connected nodes</div>
+            </div>
+          </div>
+          <div class="panel-body">
+            <div class="kpi-value" id="k-peers">0</div>
+            <div class="hr"></div>
+            <pre id="k-peers-list" style="max-height:80px">[]</pre>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- RPC Console + Modules -->
+      <div class="grid-3" id="rpc">
+
+        <div class="panel">
+          <div class="panel-header">
+            <div>
+              <div class="panel-title">RPC Console</div>
+              <div class="panel-sub">call any method on your node</div>
+            </div>
+          </div>
+          <div class="panel-body">
+            <div class="field">
+              <label class="field-label">Method</label>
+              <input class="input" id="rpc-m" value="chain_info">
+            </div>
+            <div class="field">
+              <label class="field-label">Params (JSON)</label>
+              <textarea class="textarea" id="rpc-p">{}</textarea>
+            </div>
+            <div class="btn-row">
+              <button class="btn primary" onclick="callRpc()">Execute</button>
+              <button class="btn" onclick="clearOut()">Clear</button>
+              <button class="btn" onclick="q('chain_info')">chain_info</button>
+              <button class="btn" onclick="q('explorer_stats')">explorer_stats</button>
+            </div>
+            <div class="field mt-4">
+              <label class="field-label">Response</label>
+              <pre id="rpc-out">// response will appear here</pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel" id="modules">
+          <div class="panel-header">
+            <div class="panel-title">Modules</div>
+          </div>
+          <div class="panel-body" style="padding:0">
+            <table>
+              <thead>
+                <tr><th>Module</th><th>Methods</th></tr>
+              </thead>
+              <tbody>
+                <tr><td><strong>chain</strong></td><td class="mono">chain_info · chain_latest · chain_getBlock · account_balance · tx_submit · nonce_get</td></tr>
+                <tr><td><strong>stablecoin</strong></td><td class="mono">stablecoin_mint · stablecoin_balance · stablecoin_supply</td></tr>
+                <tr><td><strong>lending</strong></td><td class="mono">lending_deposit · lending_borrow · lending_position</td></tr>
+                <tr><td><strong>governance</strong></td><td class="mono">governance_propose · governance_vote · governance_result</td></tr>
+                <tr><td><strong>token</strong></td><td class="mono">token_deploy · token_info</td></tr>
+                <tr><td><strong>nft</strong></td><td class="mono">nft_mint · nft_ownerOf · nft_transfer · nft_tokenURI · nft_count</td></tr>
+                <tr><td><strong>amm</strong></td><td class="mono">amm_addLiquidity · amm_reserves · amm_swap</td></tr>
+                <tr><td><strong>staking</strong></td><td class="mono">staking_stake · staking_unstake · staking_info</td></tr>
+                <tr><td><strong>multisig</strong></td><td class="mono">multisig_create · multisig_sign · multisig_info</td></tr>
+                <tr><td><strong>p2p</strong></td><td class="mono">p2p_peers · p2p_addPeer</td></tr>
+                <tr><td><strong>explorer</strong></td><td class="mono">explorer_stats</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
   </div>
 </div>
 
@@ -100,40 +204,56 @@
 const API = location.origin;
 let _id = 0;
 
-async function rpc(method, params={}) {
+async function rpc(method, params) {
   _id++;
   const r = await fetch(API + "/rpc", {
     method:"POST",
     headers:{"Content-Type":"application/json"},
-    body: JSON.stringify({jsonrpc:"2.0", id:_id, method, params})
+    body: JSON.stringify({jsonrpc:"2.0", id:_id, method, params: params || {}})
   });
   const j = await r.json();
-  if (j.error) throw new Error(JSON.stringify(j.error));
+  if (j.error) throw new Error(typeof j.error === 'string' ? j.error : JSON.stringify(j.error));
   return j.result;
 }
 
 async function refresh() {
   try {
     const s = await rpc("explorer_stats");
-    document.getElementById("height").textContent = s.height;
-    document.getElementById("lhash").textContent = s.latest_hash;
-    document.getElementById("stable").textContent = s.stable_supply;
-    document.getElementById("nft").textContent = s.nft_count;
-    document.getElementById("validator").textContent = s.validator || "—";
     const ci = await rpc("chain_info");
-    document.getElementById("mpool").textContent = ci.mempool_size;
-    document.getElementById("status").textContent = "● live · " + new Date().toLocaleTimeString();
-    document.getElementById("status").style.color = "#5fbf8a";
+    const peers = await rpc("p2p_peers").catch(()=>({peers:[]}));
+
+    document.getElementById("k-height").textContent = s.height;
+    document.getElementById("k-mempool").textContent = ci.mempool_size;
+    document.getElementById("k-stable").textContent = s.stable_supply;
+    document.getElementById("k-nft").textContent = s.nft_count;
+    document.getElementById("k-lhash").textContent = s.latest_hash;
+    document.getElementById("k-validator").textContent = s.validator || "—";
+    document.getElementById("k-peers").textContent = (peers.peers || []).length;
+    document.getElementById("k-peers-list").textContent = JSON.stringify(peers.peers || [], null, 2);
+
+    document.getElementById("tb-height").textContent = s.height;
+    document.getElementById("tb-mempool").textContent = ci.mempool_size;
+
+    setStatus(true);
   } catch(e) {
-    document.getElementById("status").textContent = "● offline: " + e.message;
-    document.getElementById("status").style.color = "#ff5f5f";
+    setStatus(false);
   }
 }
 
+function setStatus(ok) {
+  const ids = ["tb-status","side-status"];
+  ids.forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.textContent = ok ? "connected" : "offline";
+    el.classList.toggle("offline", !ok);
+  });
+}
+
 async function callRpc() {
-  const m = document.getElementById("m").value.trim();
-  const p = document.getElementById("p").value.trim();
-  const out = document.getElementById("out");
+  const m = document.getElementById("rpc-m").value.trim();
+  const p = document.getElementById("rpc-p").value.trim();
+  const out = document.getElementById("rpc-out");
   try {
     const params = p ? JSON.parse(p) : {};
     const r = await rpc(m, params);
@@ -143,14 +263,12 @@ async function callRpc() {
   }
 }
 
-function q(m) {
-  document.getElementById("m").value = m;
-  document.getElementById("p").value = "{}";
-  callRpc();
-}
+function clearOut(){ document.getElementById("rpc-out").textContent = "// cleared"; }
+function q(m){ document.getElementById("rpc-m").value = m; document.getElementById("rpc-p").value = "{}"; callRpc(); }
 
 refresh();
 setInterval(refresh, 3000);
 </script>
+
 </body>
 </html>

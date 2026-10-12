@@ -1,104 +1,249 @@
-<!doctype html><html><head><meta charset="utf-8">
-<title>Shivrai Wallet</title>
-<style>
-body{margin:0;font-family:-apple-system,sans-serif;background:#0a0a0f;color:#e8e8f0}
-header{background:linear-gradient(90deg,#ff6b35,#f7c59f);padding:20px 30px}
-h1{margin:0;color:#0a0a0f}
-.wrap{padding:24px;max-width:920px;margin:auto}
-.card{background:#141420;border:1px solid #22222f;border-radius:10px;padding:20px;margin-bottom:16px}
-h3{margin:0 0 12px;font-size:12px;text-transform:uppercase;color:#8888a0;letter-spacing:1.5px}
-input,select{background:#0a0a0f;color:#e8e8f0;border:1px solid #22222f;padding:9px 12px;border-radius:6px;width:100%;margin-bottom:8px;font-family:monospace;font-size:13px}
-button{background:#ff6b35;color:#0a0a0f;border:none;padding:10px 18px;border-radius:6px;cursor:pointer;font-weight:600}
-button:hover{background:#f7c59f}
-pre{background:#0a0a0f;border:1px solid #22222f;padding:12px;border-radius:6px;overflow:auto;font-size:12px;color:#a0d8ef}
-a{color:#f7c59f}
-</style></head><body>
-<header><h1>👛 Shivrai Wallet</h1><div><a href="/">← Explorer</a></div></header>
-<div class="wrap">
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Wallet · Shivrai Node</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
 
-<div class="card"><h3>1. Wallet</h3>
-<button onclick="genWallet()">Generate New Keypair</button>
-<input id="priv" placeholder="private key (hex)">
-<input id="pub" placeholder="public key (hex)">
-<input id="addr" placeholder="address (0x...)">
-<pre id="wout">// generate a wallet to start</pre>
+<div class="app">
+
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-row">
+        <div class="brand-mark">S</div>
+        <div>
+          <div class="brand-name">Shivrai Node</div>
+          <div class="brand-sub">v1.0.0 · chain_id=shivrai-1</div>
+        </div>
+      </div>
+      <div class="brand-meta">
+        <span class="status" id="side-status">connected</span>
+      </div>
+    </div>
+
+    <div class="nav-section">Network</div>
+    <a href="/" class="nav-item">
+      <svg class="nav-icon" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+      Overview
+    </a>
+    <a href="/#rpc" class="nav-item">
+      <svg class="nav-icon" viewBox="0 0 24 24"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
+      RPC Console
+    </a>
+    <a href="/#modules" class="nav-item">
+      <svg class="nav-icon" viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+      Modules
+    </a>
+
+    <div class="nav-section">Account</div>
+    <a href="/wallet.html" class="nav-item active">
+      <svg class="nav-icon" viewBox="0 0 24 24"><rect x="2" y="6" width="20" height="14" rx="2"/><path d="M16 12h2"/><path d="M2 10h20"/></svg>
+      Wallet
+    </a>
+
+    <div class="nav-section">Links</div>
+    <a href="https://github.com/ktusharuxd-afk/shivrai-hon-core" target="_blank" class="nav-item">
+      <svg class="nav-icon" viewBox="0 0 24 24"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
+      GitHub
+    </a>
+  </aside>
+
+  <div class="main">
+
+    <header class="topbar">
+      <div class="topbar-title">Wallet</div>
+      <div class="topbar-right">
+        <div class="topbar-item">Block <b id="tb-height">—</b></div>
+        <div class="status" id="tb-status">connected</div>
+      </div>
+    </header>
+
+    <div class="content">
+
+      <div class="page-header">
+        <h1>Wallet</h1>
+        <p>Generate keys, check balances, and submit signed transactions.</p>
+      </div>
+
+      <div class="grid-2">
+
+        <!-- Keygen -->
+        <div class="panel">
+          <div class="panel-header">
+            <div>
+              <div class="panel-title">Keypair</div>
+              <div class="panel-sub">generate a new ECDSA wallet</div>
+            </div>
+          </div>
+          <div class="panel-body">
+            <div class="btn-row" style="margin-bottom:14px">
+              <button class="btn primary" onclick="genWallet()">Generate Keypair</button>
+              <button class="btn" onclick="copyAddr()">Copy Address</button>
+            </div>
+            <div class="field">
+              <label class="field-label">Address</label>
+              <input class="input" id="w-addr" readonly placeholder="0x...">
+            </div>
+            <div class="field">
+              <label class="field-label">Private Key</label>
+              <input class="input" id="w-priv" readonly placeholder="generate to reveal">
+            </div>
+            <div class="field">
+              <label class="field-label">Public Key</label>
+              <input class="input" id="w-pub" readonly placeholder="—">
+            </div>
+            <div class="muted mt-2">⚠ Keep your private key safe. Anyone with it can spend your funds.</div>
+          </div>
+        </div>
+
+        <!-- Balance -->
+        <div class="panel">
+          <div class="panel-header">
+            <div>
+              <div class="panel-title">Account Info</div>
+              <div class="panel-sub">check balance and nonce</div>
+            </div>
+          </div>
+          <div class="panel-body">
+            <div class="field">
+              <label class="field-label">Address</label>
+              <input class="input" id="b-addr" placeholder="0x...">
+            </div>
+            <div class="btn-row" style="margin-bottom:14px">
+              <button class="btn primary" onclick="checkAccount()">Check</button>
+              <button class="btn" onclick="useMyAddr()">Use My Address</button>
+            </div>
+            <div class="field">
+              <label class="field-label">Response</label>
+              <pre id="b-out">// response will appear here</pre>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Send -->
+      <div class="panel" style="margin-top:20px" id="tx">
+        <div class="panel-header">
+          <div>
+            <div class="panel-title">Submit Transaction</div>
+            <div class="panel-sub">signed transactions are verified on-chain (ECDSA + nonce + balance)</div>
+          </div>
+        </div>
+        <div class="panel-body">
+          <div class="muted" style="margin-bottom:14px">
+            Browser crypto API doesn't support secp256k1. To create real signed transactions, use the CLI:
+            <br><br>
+            <code style="font-family:var(--font-mono);background:var(--bg);padding:3px 8px;border-radius:4px;color:var(--accent)">./build/shivrai-cli keygen</code>
+            &nbsp;
+            <code style="font-family:var(--font-mono);background:var(--bg);padding:3px 8px;border-radius:4px;color:var(--accent)">./build/shivrai-cli call &lt;method&gt; &lt;json&gt;</code>
+            <br><br>
+            Or paste a pre-signed transaction JSON below to submit it directly:
+          </div>
+          <div class="field">
+            <label class="field-label">Signed Transaction (JSON)</label>
+            <textarea class="textarea" id="tx-json" placeholder='{"from":"0x...","to":"0x...","value":10,"nonce":0,"signature":"...","pubkey":"...","method":"transfer","params":{}}' style="min-height:120px"></textarea>
+          </div>
+          <div class="btn-row">
+            <button class="btn primary" onclick="submitTx()">Submit Transaction</button>
+            <button class="btn" onclick="document.getElementById('tx-json').value=''">Clear</button>
+          </div>
+          <div class="field mt-4">
+            <label class="field-label">Response</label>
+            <pre id="tx-out">// response will appear here</pre>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
 </div>
 
-<div class="card"><h3>2. Check Balance & Nonce</h3>
-<button onclick="check()">Query</button>
-<pre id="cout">// address info</pre>
-</div>
-
-<div class="card"><h3>3. Send Transaction</h3>
-<input id="to" placeholder="to (0x...)">
-<input id="amt" placeholder="amount" value="10">
-<button onclick="send()">Sign & Submit</button>
-<pre id="sout">// signed tx will appear here</pre>
-</div>
-
-<div class="card"><h3>4. Submit Signed Tx</h3>
-<textarea id="txtx" rows="6" style="width:100%;background:#0a0a0f;color:#e8e8f0;border:1px solid #22222f;border-radius:6px;padding:10px;font-family:monospace;font-size:12px" placeholder='paste signed tx JSON'></textarea>
-<button onclick="submitTx()" style="margin-top:8px">Submit</button>
-<pre id="tout">// result</pre>
-</div>
-
-</div>
 <script>
 const API = location.origin;
 let _id = 0;
-async function rpc(method, params={}) {
+async function rpc(method, params) {
   _id++;
-  const r = await fetch(API+"/rpc",{method:"POST",headers:{"Content-Type":"application/json"},
-    body:JSON.stringify({jsonrpc:"2.0",id:_id,method,params})});
+  const r = await fetch(API + "/rpc", {
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body: JSON.stringify({jsonrpc:"2.0", id:_id, method, params: params || {}})
+  });
   const j = await r.json();
-  if (j.error) throw new Error(JSON.stringify(j.error));
+  if (j.error) throw new Error(typeof j.error === 'string' ? j.error : JSON.stringify(j.error));
   return j.result;
 }
 
-// WARNING: keygen uses WebCrypto (ECDSA P-256, not secp256k1).
-// For production use the C++ CLI: ./build/shivrai-cli keygen
-// This browser version is a DEMO — it generates an address + nonce demo flow.
-function genWallet() {
-  const arr = new Uint8Array(32); crypto.getRandomValues(arr);
-  const priv = [...arr].map(b=>b.toString(16).padStart(2,'0')).join('');
-  document.getElementById('priv').value = priv;
-  document.getElementById('wout').textContent =
-    "Demo keypair generated in browser.\n" +
-    "For real secp256k1 keys run in WSL:\n" +
-    "  ./build/shivrai-cli keygen";
+async function refresh() {
+  try {
+    const ci = await rpc("chain_info");
+    document.getElementById("tb-height").textContent = ci.height;
+    setStatus(true);
+  } catch(e) { setStatus(false); }
+}
+function setStatus(ok) {
+  ["tb-status","side-status"].forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.textContent = ok ? "connected" : "offline";
+    el.classList.toggle("offline", !ok);
+  });
 }
 
-async function check() {
-  const a = document.getElementById('addr').value.trim();
-  if (!a) return;
+function genWallet() {
+  const arr = new Uint8Array(32);
+  crypto.getRandomValues(arr);
+  const priv = [...arr].map(b=>b.toString(16).padStart(2,'0')).join('');
+  // demo address (browser can't do secp256k1); use CLI for real keys
+  const hash = Array.from(new Uint8Array(20)).map(()=>Math.floor(Math.random()*256));
+  const addr = "0x" + crypto.getRandomValues(new Uint8Array(20))
+    .reduce((s,b)=>s+b.toString(16).padStart(2,'0'),'');
+  document.getElementById("w-addr").value = addr;
+  document.getElementById("w-priv").value = priv;
+  document.getElementById("w-pub").value = "(browser demo — use CLI for real pubkey)";
+}
+
+function copyAddr() {
+  const v = document.getElementById("w-addr").value;
+  if (!v) return;
+  navigator.clipboard.writeText(v);
+}
+
+function useMyAddr() {
+  const a = document.getElementById("w-addr").value;
+  if (a) document.getElementById("b-addr").value = a;
+}
+
+async function checkAccount() {
+  const a = document.getElementById("b-addr").value.trim();
+  const out = document.getElementById("b-out");
+  if (!a) { out.textContent = "// enter an address"; return; }
   try {
     const bal = await rpc("account_balance", {address:a});
-    const n   = await rpc("nonce_get", {address:a});
-    document.getElementById('cout').textContent = JSON.stringify({bal,nonce:n},null,2);
-  } catch(e) { document.getElementById('cout').textContent = "ERR: "+e.message; }
-}
-
-async function send() {
-  // For demo: construct a plain (unsigned) tx and use tx_submit
-  // Real signing: use CLI (shivrai-cli send) or Python SDK
-  const from = document.getElementById('addr').value.trim();
-  const to   = document.getElementById('to').value.trim();
-  const val  = parseInt(document.getElementById('amt').value||"0",10);
-  document.getElementById('sout').textContent =
-    "In-browser signing requires secp256k1 (not built into browsers).\n\n" +
-    "Use one of these instead:\n" +
-    "  • CLI:     ./build/shivrai-cli send <to> <amt>\n" +
-    "  • Python:  see examples/python/send.py\n" +
-    "  • SDK:     client.tx_signed(...)\n\n" +
-    "Or paste a signed tx in section 4 below.";
+    const nonce = await rpc("nonce_get", {address:a});
+    out.textContent = JSON.stringify({balance: bal.balance, nonce: nonce.nonce}, null, 2);
+  } catch(e) { out.textContent = "ERROR: " + e.message; }
 }
 
 async function submitTx() {
-  const t = document.getElementById('txtx').value.trim();
+  const j = document.getElementById("tx-json").value.trim();
+  const out = document.getElementById("tx-out");
+  if (!j) { out.textContent = "// paste a signed tx"; return; }
   try {
-    const tx = JSON.parse(t);
+    const tx = JSON.parse(j);
     const r = await rpc("tx_submit", tx);
-    document.getElementById('tout').textContent = JSON.stringify(r,null,2);
-  } catch(e) { document.getElementById('tout').textContent = "ERR: "+e.message; }
+    out.textContent = JSON.stringify(r, null, 2);
+  } catch(e) { out.textContent = "ERROR: " + e.message; }
 }
-</script></body></html>
+
+refresh();
+setInterval(refresh, 3000);
+</script>
+</body>
+</html>
