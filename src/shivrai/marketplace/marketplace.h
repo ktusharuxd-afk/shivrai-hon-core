@@ -1,5 +1,5 @@
-#ifndef SHIVRAI_HON_STAKING_H
-#define SHIVRAI_HON_STAKING_H
+#ifndef SHIVRAI_HON_MARKETPLACE_H
+#define SHIVRAI_HON_MARKETPLACE_H
 
 #include <cstdint>
 #include <map>
@@ -8,98 +8,98 @@
 #include <string>
 #include <vector>
 
-namespace shivrai::staking {
+namespace shivrai::marketplace {
 
-using ValidatorId = std::string;   // address-style string
-using DelegationId = uint64_t;
+using ListingId = uint64_t;
+using NFTId     = uint64_t;
+using BidId     = uint64_t;
 
+static constexpr uint32_t PLATFORM_FEE_BPS = 250;
 static constexpr uint32_t BPS = 10000;
-static constexpr uint64_t MIN_SELF_STAKE = 10000;
-static constexpr uint64_t MIN_DELEGATION = 100;
-static constexpr uint32_t DEFAULT_COMMISSION_BPS = 500;   // 5%
-static constexpr int64_t  UNBONDING_PERIOD_SEC = 21 * 24 * 3600;
-static constexpr uint32_t SLASH_DOUBLE_SIGN_BPS = 500;
-static constexpr uint32_t SLASH_DOWNTIME_BPS    = 10;
 
-enum class ValidatorStatus { Active, Jailed, Unbonding, Tombstoned };
+enum class ListingKind { FixedPrice, Auction };
 
-struct Validator {
-    ValidatorId id;
-    std::string moniker;
-    uint64_t    self_stake{0};
-    uint64_t    delegated{0};
-    uint64_t    total_stake{0};
-    uint32_t    commission_bps{DEFAULT_COMMISSION_BPS};
-    ValidatorStatus status{ValidatorStatus::Active};
+struct Listing {
+    ListingId   id{0};
+    std::string seller;
+    NFTId       nft_id{0};
+    ListingKind kind{ListingKind::FixedPrice};
+    uint64_t    price{0};
+    uint64_t    highest_bid{0};
+    BidId       highest_bid_id{0};
+    std::string highest_bidder;
     int64_t     created_at{0};
-    int64_t     unbond_start{0};
-    int64_t     jailed_until{0};
-    uint64_t    rewards_accumulated{0};
+    int64_t     expires_at{0};
+    bool        active{true};
 };
 
-struct Delegation {
-    DelegationId id{0};
-    std::string  delegator;
-    ValidatorId  validator;
-    uint64_t     amount{0};
-    int64_t      created_at{0};
-    int64_t      unbond_start{0};
-    bool         unbonding{false};
+struct Bid {
+    BidId       id{0};
+    ListingId   listing_id{0};
+    std::string bidder;
+    uint64_t    amount{0};
+    int64_t     created_at{0};
 };
 
-class StakingPool {
+struct SaleSplit {
+    uint64_t    seller_proceeds{0};
+    uint64_t    royalty_paid{0};
+    uint64_t    platform_fee{0};
+    std::string royalty_recipient;
+};
+
+class Marketplace {
 public:
-    StakingPool();
+    Marketplace();
 
-    // --- Validators ---
-    bool RegisterValidator(const std::string& moniker,
-                           const std::string& validator_id,
-                           uint64_t self_stake,
-                           uint32_t commission_bps);
-    bool UpdateCommission(const std::string& validator_id, uint32_t commission_bps);
-    bool JailValidator(const std::string& validator_id, int64_t duration_sec);
-    bool UnjailValidator(const std::string& validator_id);
-    std::optional<Validator> GetValidator(const std::string& validator_id) const;
-    std::vector<std::string> AllValidators() const;
-    size_t ValidatorCount() const;
+    std::optional<ListingId> ListFixedPrice(const std::string& seller,
+                                            NFTId nft_id,
+                                            uint64_t price);
+    std::optional<ListingId> ListAuction(const std::string& seller,
+                                         NFTId nft_id,
+                                         uint64_t reserve_price,
+                                         int64_t duration_sec);
+    bool CancelListing(const std::string& seller, ListingId id);
 
-    // --- Delegation ---
-    std::optional<DelegationId> Delegate(const std::string& delegator,
-                                         const std::string& validator_id,
-                                         uint64_t amount);
-    bool BeginUndelegate(const std::string& delegator, DelegationId id);
-    bool CompleteUndelegate(DelegationId id);
-    std::optional<Delegation> GetDelegation(DelegationId id) const;
-    std::vector<DelegationId> DelegationsOf(const std::string& delegator) const;
-    std::vector<DelegationId> DelegationsTo(const std::string& validator_id) const;
-    uint64_t DelegatedBy(const std::string& delegator) const;
+    std::optional<BidId> PlaceBid(const std::string& bidder,
+                                  ListingId id,
+                                  uint64_t amount);
 
-    // --- Rewards ---
-    void DistributeRewards(const std::string& validator_id, uint64_t amount);
-    uint64_t ClaimRewards(const std::string& delegator, DelegationId id);
-    uint64_t PendingRewards(const std::string& delegator, DelegationId id) const;
+    std::optional<SaleSplit> BuyNow(const std::string& buyer,
+                                    ListingId id,
+                                    uint32_t royalty_bps,
+                                    const std::string& royalty_recipient);
+    std::optional<SaleSplit> SettleAuction(const std::string& caller,
+                                           ListingId id,
+                                           uint32_t royalty_bps,
+                                           const std::string& royalty_recipient);
 
-    // --- Slashing ---
-    bool SlashDoubleSign(const std::string& validator_id);
-    bool SlashDowntime(const std::string& validator_id);
-    uint64_t TotalSlashed() const;
+    bool ExpireAuction(ListingId id);
 
-    // --- Queries ---
-    uint64_t TotalStaked() const;
-    uint64_t TotalBonded() const;
-    size_t   DelegationCount() const;
-    uint32_t ValidatorCountActive() const;
+    std::optional<Listing> GetListing(ListingId id) const;
+    std::optional<Bid>     GetBid(BidId id) const;
+    std::vector<ListingId> ActiveListings() const;
+    std::vector<ListingId> ListingsBySeller(const std::string& seller) const;
+    std::vector<BidId>     BidsForListing(ListingId id) const;
+    size_t                 ListingCount() const;
+    size_t                 BidCount() const;
+
+    void SetPlatformFeeBps(uint32_t bps);
+    uint32_t PlatformFeeBps() const;
 
 private:
-    mutable std::recursive_mutex cs_;
-    std::map<std::string, Validator>           validators_;
-    std::map<DelegationId, Delegation>         delegations_;
-    std::map<std::string, std::vector<DelegationId>> by_delegator_;
-    std::map<std::string, std::vector<DelegationId>> by_validator_;
-    std::map<DelegationId, uint64_t>           pending_rewards_;
+    std::optional<SaleSplit> Settle(Listing& l, const std::string& buyer, uint64_t amount,
+                                    uint32_t royalty_bps, const std::string& royalty_recipient);
 
-    DelegationId next_delegation_id_{1};
-    uint64_t     total_slashed_{0};
+    mutable std::recursive_mutex cs_;
+    std::map<ListingId, Listing> listings_;
+    std::map<BidId, Bid>         bids_;
+    std::map<ListingId, std::vector<BidId>> bids_by_listing_;
+    std::map<std::string, std::vector<ListingId>> listings_by_seller_;
+
+    ListingId next_listing_id_{1};
+    BidId     next_bid_id_{1};
+    uint32_t  platform_fee_bps_{PLATFORM_FEE_BPS};
 };
 
 }

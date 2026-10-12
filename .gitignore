@@ -29,3 +29,9 @@ target/
 /ci/scratch/
 explorer/node_modules/
 second*
+build/
+CMakeLists.txt.old
+*.o
+*.a
+__pycache__/
+*.pyc

@@ -1,8 +1,17 @@
+FROM ubuntu:22.04 AS builder
+RUN apt-get update && apt-get install -y build-essential cmake git \
+    && rm -rf /var/lib/apt/lists/*
+WORKDIR /src
+COPY . .
+RUN mkdir -p build && cd build && \
+    cmake .. -DCMAKE_BUILD_TYPE=Release && \
+    make -j$(nproc)
+
 FROM ubuntu:22.04
-ENV DEBIAN_FRONTEND=noninteractive
-RUN apt-get update && apt-get install -y build-essential libtool autotools-dev automake pkg-config libevent-dev libboost-dev libsqlite3-dev cmake
-COPY . /shivrai-hon
-WORKDIR /shivrai-hon
-RUN cmake -B build -DENABLE_IPC=OFF && cmake --build build -j4
-RUN mkdir -p /root/.shivrai-hon
-CMD ["./build/bin/bitcoind", "-regtest", "-datadir=/root/.shivrai-hon", "-rpcuser=shivraiuser", "-rpcpassword=honpassword123", "-rpcallowip=0.0.0.0/0", "-rpcport=8332", "-server=1", "-daemon=0", "-txindex=1", "-bind=0.0.0.0"]
+RUN apt-get update && apt-get install -y ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+WORKDIR /app
+COPY --from=builder /src/build/shivrai-node /app/shivrai-node
+EXPOSE 8545
+ENTRYPOINT ["/app/shivrai-node"]
+CMD ["8545"]
