@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.16)
-project(shivrai-hon-core VERSION 1.0.0 LANGUAGES CXX)
+project(shivrai-hon-core VERSION 1.0.0 LANGUAGES C CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -O2")
@@ -7,8 +7,12 @@ find_package(OpenSSL REQUIRED)
 find_package(SQLite3 REQUIRED)
 find_package(nlohmann_json REQUIRED)
 find_package(Threads REQUIRED)
-include_directories(${CMAKE_SOURCE_DIR}/include ${CMAKE_SOURCE_DIR}/third_party)
+include_directories(${CMAKE_SOURCE_DIR}/include ${CMAKE_SOURCE_DIR}/third_party ${CMAKE_SOURCE_DIR}/third_party/wasm3/source)
 file(GLOB_RECURSE CORE_SOURCES ${CMAKE_SOURCE_DIR}/src/*.cpp)
+# C sources (embedded runtime)
+file(GLOB WASM3_SOURCES ${CMAKE_SOURCE_DIR}/third_party/wasm3/source/m3_*.c)
+list(FILTER WASM3_SOURCES EXCLUDE REGEX "m3_api_.*")
+list(APPEND CORE_SOURCES ${WASM3_SOURCES})
 list(REMOVE_ITEM CORE_SOURCES
   ${CMAKE_SOURCE_DIR}/src/main.cpp
   ${CMAKE_SOURCE_DIR}/src/cli.cpp
@@ -16,7 +20,8 @@ list(REMOVE_ITEM CORE_SOURCES
 add_library(shivrai_core STATIC ${CORE_SOURCES})
 target_link_libraries(shivrai_core PUBLIC
   OpenSSL::SSL OpenSSL::Crypto SQLite::SQLite3
-  nlohmann_json::nlohmann_json Threads::Threads)
+  nlohmann_json::nlohmann_json Threads::Threads
+)
 add_executable(shivrai-node src/main.cpp)
 target_link_libraries(shivrai-node PRIVATE shivrai_core)
 add_executable(shivrai-cli src/cli.cpp)

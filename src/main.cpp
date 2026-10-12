@@ -9,6 +9,7 @@
 #include "shivrai/consensus.hpp"
 #include "shivrai/pos.hpp"
 #include "shivrai/pos_modules.hpp"
+#include "shivrai/contract_modules.hpp"
 #include "shivrai/p2p.hpp"
 #include <iostream>
 #include <csignal>
@@ -109,6 +110,7 @@ int main(int argc, char** argv) {
   register_staking(rpc, state, chain);
   register_multisig(rpc, state);
   register_explorer(rpc, chain, state);
+  register_contract(rpc, state);
   if (pos) register_pos(rpc, state, *pos);
 
   rpc.start(host, port);

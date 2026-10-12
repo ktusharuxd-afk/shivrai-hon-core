@@ -11,3 +11,5 @@ dist/
 .idea/
 *.log
 *.pid
+third_party/wasm3/
+third_party/httplib.h
