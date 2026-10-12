@@ -1,0 +1,60 @@
+<!doctype html><html><head><meta charset="utf-8">
+<title>Shivrai Hon Core — Docs</title>
+<style>
+body{margin:0;font-family:system-ui,sans-serif;background:#0a0a0f;color:#e8e8f0;line-height:1.6}
+header{background:linear-gradient(90deg,#ff6b35,#f7c59f);padding:60px 30px;text-align:center}
+h1{margin:0;font-size:38px;color:#0a0a0f;letter-spacing:-1px}
+header p{color:#0a0a0f;margin:10px 0 0}
+.wrap{max-width:880px;margin:auto;padding:40px 24px}
+h2{color:#f7c59f;border-bottom:1px solid #22222f;padding-bottom:8px;margin-top:40px}
+code,pre{background:#141420;border:1px solid #22222f;border-radius:6px;padding:3px 8px;font-size:13px;color:#a0d8ef}
+pre{padding:14px;overflow:auto}
+a{color:#f7c59f}
+table{width:100%;border-collapse:collapse;font-size:14px;margin:16px 0}
+th,td{padding:10px 8px;text-align:left;border-bottom:1px solid #22222f}
+th{color:#8888a0;font-size:12px;text-transform:uppercase}
+</style></head><body>
+<header><h1>⚡ Shivrai Hon Core</h1><p>A complete blockchain node in C++17</p></header>
+<div class="wrap">
+<h2>Quick Start</h2>
+<pre>git clone https://github.com/ktusharuxd-afk/shivrai-hon-core.git
+cd shivrai-hon-core
+bash scripts/build.sh
+bash scripts/run_node.sh</pre>
+<p>Then open <a href="http://localhost:8545/">http://localhost:8545/</a></p>
+
+<h2>Features</h2>
+<ul>
+<li>PoA consensus — 3s blocks</li>
+<li>ECDSA secp256k1 accounts + signature verification</li>
+<li>Nonce replay protection + balance check</li>
+<li>SQLite WAL persistence, batched per block</li>
+<li>JSON-RPC 2.0 + REST alias</li>
+<li>P2P block gossip via --peer</li>
+<li>10 modules: chain, stablecoin, lending, governance, token, NFT, AMM, staking, multisig, p2p</li>
+<li>Web explorer + browser wallet</li>
+<li>Docker, CI, benchmark, CLI, Python SDK</li>
+</ul>
+
+<h2>Two-node P2P demo</h2>
+<pre>bash scripts/two_nodes.sh</pre>
+
+<h2>RPC Methods (40+)</h2>
+<table>
+<tr><th>Module</th><th>Methods</th></tr>
+<tr><td>chain</td><td>chain_info, chain_latest, chain_getBlock, account_balance, tx_submit, nonce_get</td></tr>
+<tr><td>stablecoin</td><td>stablecoin_mint, stablecoin_balance, stablecoin_supply</td></tr>
+<tr><td>lending</td><td>lending_deposit, lending_borrow, lending_position</td></tr>
+<tr><td>governance</td><td>governance_propose, governance_vote, governance_result</td></tr>
+<tr><td>token</td><td>token_deploy, token_info</td></tr>
+<tr><td>nft</td><td>nft_mint, nft_ownerOf, nft_transfer, nft_tokenURI, nft_count</td></tr>
+<tr><td>amm</td><td>amm_addLiquidity, amm_reserves, amm_swap</td></tr>
+<tr><td>staking</td><td>staking_stake, staking_unstake, staking_info</td></tr>
+<tr><td>multisig</td><td>multisig_create, multisig_sign, multisig_info</td></tr>
+<tr><td>p2p</td><td>p2p_peers, p2p_addPeer</td></tr>
+<tr><td>explorer</td><td>explorer_stats</td></tr>
+</table>
+
+<h2>License</h2>
+<p>MIT — see LICENSE</p>
+</div></body></html>

@@ -1,0 +1,15 @@
+services:
+  node:
+    build: .
+    image: shivrai-hon-core:1.0.0
+    container_name: shivrai-node
+    ports:
+      - "8545:8545"
+    volumes:
+      - ./data:/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD","sh","-c","curl -sf http://localhost:8545/health || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 5

@@ -1,0 +1,69 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  build-and-test:
+    name: Build & Test (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-22.04, ubuntu-24.04]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install deps
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            build-essential cmake pkg-config \
+            libssl-dev libsqlite3-dev nlohmann-json3-dev
+      - name: Fetch cpp-httplib
+        run: |
+          mkdir -p third_party
+          if [ ! -f third_party/httplib.h ]; then
+            curl -fsSL -o third_party/httplib.h \
+              https://raw.githubusercontent.com/yhirose/cpp-httplib/v0.15.3/httplib.h
+          fi
+      - name: Configure
+        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+      - name: Build
+        run: cmake --build build -j
+      - name: Test
+        run: ctest --test-dir build --output-on-failure
+      - name: Smoke test (node starts, health responds)
+        run: |
+          mkdir -p data
+          ./build/shivrai-node --db data/ci.db --host 127.0.0.1 --port 8545 &
+          NODE_PID=$!
+          for i in $(seq 1 40); do
+            if curl -sf http://127.0.0.1:8545/health >/dev/null; then
+              echo "node ready after $i attempts"; break
+            fi
+            sleep 0.25
+          done
+          curl -sf http://127.0.0.1:8545/health
+          curl -sf -X POST http://127.0.0.1:8545/rpc \
+            -H 'Content-Type: application/json' \
+            -d '{"jsonrpc":"2.0","id":1,"method":"explorer_stats","params":{}}'
+          kill $NODE_PID || true
+
+  python-sdk:
+    name: Python SDK import
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install SDK
+        run: |
+          cd sdk/python
+          pip install -e .
+      - name: Import check
+        run: |
+          python -c "import shivrai; print('SDK', shivrai.__version__)"

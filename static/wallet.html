@@ -1,0 +1,104 @@
+<!doctype html><html><head><meta charset="utf-8">
+<title>Shivrai Wallet</title>
+<style>
+body{margin:0;font-family:-apple-system,sans-serif;background:#0a0a0f;color:#e8e8f0}
+header{background:linear-gradient(90deg,#ff6b35,#f7c59f);padding:20px 30px}
+h1{margin:0;color:#0a0a0f}
+.wrap{padding:24px;max-width:920px;margin:auto}
+.card{background:#141420;border:1px solid #22222f;border-radius:10px;padding:20px;margin-bottom:16px}
+h3{margin:0 0 12px;font-size:12px;text-transform:uppercase;color:#8888a0;letter-spacing:1.5px}
+input,select{background:#0a0a0f;color:#e8e8f0;border:1px solid #22222f;padding:9px 12px;border-radius:6px;width:100%;margin-bottom:8px;font-family:monospace;font-size:13px}
+button{background:#ff6b35;color:#0a0a0f;border:none;padding:10px 18px;border-radius:6px;cursor:pointer;font-weight:600}
+button:hover{background:#f7c59f}
+pre{background:#0a0a0f;border:1px solid #22222f;padding:12px;border-radius:6px;overflow:auto;font-size:12px;color:#a0d8ef}
+a{color:#f7c59f}
+</style></head><body>
+<header><h1>👛 Shivrai Wallet</h1><div><a href="/">← Explorer</a></div></header>
+<div class="wrap">
+
+<div class="card"><h3>1. Wallet</h3>
+<button onclick="genWallet()">Generate New Keypair</button>
+<input id="priv" placeholder="private key (hex)">
+<input id="pub" placeholder="public key (hex)">
+<input id="addr" placeholder="address (0x...)">
+<pre id="wout">// generate a wallet to start</pre>
+</div>
+
+<div class="card"><h3>2. Check Balance & Nonce</h3>
+<button onclick="check()">Query</button>
+<pre id="cout">// address info</pre>
+</div>
+
+<div class="card"><h3>3. Send Transaction</h3>
+<input id="to" placeholder="to (0x...)">
+<input id="amt" placeholder="amount" value="10">
+<button onclick="send()">Sign & Submit</button>
+<pre id="sout">// signed tx will appear here</pre>
+</div>
+
+<div class="card"><h3>4. Submit Signed Tx</h3>
+<textarea id="txtx" rows="6" style="width:100%;background:#0a0a0f;color:#e8e8f0;border:1px solid #22222f;border-radius:6px;padding:10px;font-family:monospace;font-size:12px" placeholder='paste signed tx JSON'></textarea>
+<button onclick="submitTx()" style="margin-top:8px">Submit</button>
+<pre id="tout">// result</pre>
+</div>
+
+</div>
+<script>
+const API = location.origin;
+let _id = 0;
+async function rpc(method, params={}) {
+  _id++;
+  const r = await fetch(API+"/rpc",{method:"POST",headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({jsonrpc:"2.0",id:_id,method,params})});
+  const j = await r.json();
+  if (j.error) throw new Error(JSON.stringify(j.error));
+  return j.result;
+}
+
+// WARNING: keygen uses WebCrypto (ECDSA P-256, not secp256k1).
+// For production use the C++ CLI: ./build/shivrai-cli keygen
+// This browser version is a DEMO — it generates an address + nonce demo flow.
+function genWallet() {
+  const arr = new Uint8Array(32); crypto.getRandomValues(arr);
+  const priv = [...arr].map(b=>b.toString(16).padStart(2,'0')).join('');
+  document.getElementById('priv').value = priv;
+  document.getElementById('wout').textContent =
+    "Demo keypair generated in browser.\n" +
+    "For real secp256k1 keys run in WSL:\n" +
+    "  ./build/shivrai-cli keygen";
+}
+
+async function check() {
+  const a = document.getElementById('addr').value.trim();
+  if (!a) return;
+  try {
+    const bal = await rpc("account_balance", {address:a});
+    const n   = await rpc("nonce_get", {address:a});
+    document.getElementById('cout').textContent = JSON.stringify({bal,nonce:n},null,2);
+  } catch(e) { document.getElementById('cout').textContent = "ERR: "+e.message; }
+}
+
+async function send() {
+  // For demo: construct a plain (unsigned) tx and use tx_submit
+  // Real signing: use CLI (shivrai-cli send) or Python SDK
+  const from = document.getElementById('addr').value.trim();
+  const to   = document.getElementById('to').value.trim();
+  const val  = parseInt(document.getElementById('amt').value||"0",10);
+  document.getElementById('sout').textContent =
+    "In-browser signing requires secp256k1 (not built into browsers).\n\n" +
+    "Use one of these instead:\n" +
+    "  • CLI:     ./build/shivrai-cli send <to> <amt>\n" +
+    "  • Python:  see examples/python/send.py\n" +
+    "  • SDK:     client.tx_signed(...)\n\n" +
+    "Or paste a signed tx in section 4 below.";
+}
+
+async function submitTx() {
+  const t = document.getElementById('txtx').value.trim();
+  try {
+    const tx = JSON.parse(t);
+    const r = await rpc("tx_submit", tx);
+    document.getElementById('tout').textContent = JSON.stringify(r,null,2);
+  } catch(e) { document.getElementById('tout').textContent = "ERR: "+e.message; }
+}
+</script></body></html>

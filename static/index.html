@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Shivrai Explorer</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+  * { box-sizing: border-box; }
+  body { margin:0; font-family: -apple-system,Segoe UI,Roboto,sans-serif;
+         background:#0a0a0f; color:#e8e8f0; }
+  header { background:linear-gradient(90deg,#ff6b35,#f7c59f);
+           padding:20px 30px; }
+  h1 { margin:0; font-size:22px; letter-spacing:1px; color:#0a0a0f; }
+  .sub { font-size:12px; color:#0a0a0f; opacity:.7; margin-top:4px; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+          gap:16px; padding:24px; }
+  .card { background:#141420; border:1px solid #22222f; border-radius:10px;
+          padding:18px; }
+  .card h3 { margin:0 0 10px; font-size:12px; text-transform:uppercase;
+             letter-spacing:1.5px; color:#8888a0; }
+  .card .v { font-size:22px; font-weight:600; color:#f7c59f;
+             word-break:break-all; }
+  .card .v.sm { font-size:13px; color:#a0d8ef; }
+  .row { display:flex; gap:20px; padding:0 24px 24px; flex-wrap:wrap; }
+  .panel { flex:1; min-width:320px; background:#141420;
+           border:1px solid #22222f; border-radius:10px; padding:18px; }
+  .panel h3 { margin:0 0 14px; font-size:13px; color:#8888a0;
+              text-transform:uppercase; letter-spacing:1.5px; }
+  table { width:100%; border-collapse:collapse; font-size:13px; }
+  th,td { padding:8px 6px; text-align:left; border-bottom:1px solid #22222f; }
+  th { color:#8888a0; font-weight:500; font-size:11px;
+       text-transform:uppercase; letter-spacing:1px; }
+  td { color:#c8c8d8; }
+  .hash { font-family:monospace; font-size:12px; color:#a0d8ef; }
+  button { background:#ff6b35; color:#0a0a0f; border:none;
+           padding:8px 16px; border-radius:6px; cursor:pointer;
+           font-weight:600; font-size:13px; }
+  button:hover { background:#f7c59f; }
+  input { background:#0a0a0f; color:#e8e8f0; border:1px solid #22222f;
+          padding:8px 12px; border-radius:6px; font-size:13px;
+          width:100%; margin-bottom:8px; }
+  .status { font-size:11px; color:#5fbf8a; padding:0 24px 12px; }
+  pre { background:#0a0a0f; border:1px solid #22222f; padding:12px;
+        border-radius:6px; font-size:12px; overflow:auto;
+        max-height:300px; color:#a0d8ef; }
+</style>
+</head>
+<body>
+<header>
+  <h1>⚡ SHIVRAI HON CORE</h1>
+  <div class="sub">Blockchain Explorer &middot; v1.0.0</div>
+</header>
+
+<div class="status" id="status">connecting...</div>
+
+<div class="grid">
+  <div class="card"><h3>Block Height</h3><div class="v" id="height">—</div></div>
+  <div class="card"><h3>Latest Hash</h3><div class="v sm" id="lhash">—</div></div>
+  <div class="card"><h3>Mempool</h3><div class="v" id="mpool">—</div></div>
+  <div class="card"><h3>Stable Supply</h3><div class="v" id="stable">—</div></div>
+  <div class="card"><h3>NFT Count</h3><div class="v" id="nft">—</div></div>
+  <div class="card"><h3>Validator</h3><div class="v sm" id="validator">—</div></div>
+</div>
+
+<div class="row">
+  <div class="panel">
+    <h3>Call RPC Method</h3>
+    <input id="m" placeholder="method (e.g. chain_info)" value="chain_info">
+    <input id="p" placeholder='params JSON (e.g. {"address":"0x..."})' value="{}">
+    <button onclick="callRpc()">Execute</button>
+    <pre id="out">// response will appear here</pre>
+  </div>
+
+  <div class="panel">
+    <h3>Quick Actions</h3>
+    <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px">
+      <button onclick="q('chain_latest')">Latest Block</button>
+      <button onclick="q('explorer_stats')">Stats</button>
+      <button onclick="q('nft_count')">NFT Count</button>
+      <button onclick="q('stablecoin_supply')">Stable Supply</button>
+    </div>
+    <h3>Modules</h3>
+    <table>
+      <tr><th>Module</th><th>Methods</th></tr>
+      <tr><td>chain</td><td>chain_info, chain_latest, chain_getBlock, account_balance, tx_submit</td></tr>
+      <tr><td>stablecoin</td><td>stablecoin_mint, stablecoin_balance, stablecoin_supply</td></tr>
+      <tr><td>lending</td><td>lending_deposit, lending_borrow, lending_position</td></tr>
+      <tr><td>governance</td><td>governance_propose, governance_vote, governance_result</td></tr>
+      <tr><td>token</td><td>token_deploy, token_info</td></tr>
+      <tr><td>nft</td><td>nft_mint, nft_ownerOf, nft_transfer, nft_tokenURI, nft_count</td></tr>
+      <tr><td>amm</td><td>amm_addLiquidity, amm_reserves, amm_swap</td></tr>
+      <tr><td>staking</td><td>staking_stake, staking_unstake, staking_info</td></tr>
+      <tr><td>multisig</td><td>multisig_create, multisig_sign, multisig_info</td></tr>
+      <tr><td>explorer</td><td>explorer_stats</td></tr>
+    </table>
+  </div>
+</div>
+
+<script>
+const API = location.origin;
+let _id = 0;
+
+async function rpc(method, params={}) {
+  _id++;
+  const r = await fetch(API + "/rpc", {
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body: JSON.stringify({jsonrpc:"2.0", id:_id, method, params})
+  });
+  const j = await r.json();
+  if (j.error) throw new Error(JSON.stringify(j.error));
+  return j.result;
+}
+
+async function refresh() {
+  try {
+    const s = await rpc("explorer_stats");
+    document.getElementById("height").textContent = s.height;
+    document.getElementById("lhash").textContent = s.latest_hash;
+    document.getElementById("stable").textContent = s.stable_supply;
+    document.getElementById("nft").textContent = s.nft_count;
+    document.getElementById("validator").textContent = s.validator || "—";
+    const ci = await rpc("chain_info");
+    document.getElementById("mpool").textContent = ci.mempool_size;
+    document.getElementById("status").textContent = "● live · " + new Date().toLocaleTimeString();
+    document.getElementById("status").style.color = "#5fbf8a";
+  } catch(e) {
+    document.getElementById("status").textContent = "● offline: " + e.message;
+    document.getElementById("status").style.color = "#ff5f5f";
+  }
+}
+
+async function callRpc() {
+  const m = document.getElementById("m").value.trim();
+  const p = document.getElementById("p").value.trim();
+  const out = document.getElementById("out");
+  try {
+    const params = p ? JSON.parse(p) : {};
+    const r = await rpc(m, params);
+    out.textContent = JSON.stringify(r, null, 2);
+  } catch(e) {
+    out.textContent = "ERROR: " + e.message;
+  }
+}
+
+function q(m) {
+  document.getElementById("m").value = m;
+  document.getElementById("p").value = "{}";
+  callRpc();
+}
+
+refresh();
+setInterval(refresh, 3000);
+</script>
+</body>
+</html>
