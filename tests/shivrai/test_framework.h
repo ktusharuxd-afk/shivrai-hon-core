@@ -44,5 +44,6 @@ struct TestRegistrar {
     std::ostringstream _ss; _ss << "ASSERT_EQ: " #a " vs " #b; \
     throw std::runtime_error(_ss.str()); } } while(0)
 #define ASSERT_NE(a,b) do { if ((a) == (b)) throw std::runtime_error("ASSERT_NE: " #a " == " #b); } while(0)
+#define ASSERT_NULL(x) do { if ((x) != nullptr) throw std::runtime_error("ASSERT_NULL failed: " #x); } while(0)
 #define ASSERT_NOT_NULL(x) do { if ((x)==nullptr) throw std::runtime_error("NULL: " #x); } while(0)
 #endif
